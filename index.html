@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>视频存储对账台 · 能录多久、文件多大、要买多大的卡、传上去要多久</title>
+<meta name="description" content="录视频之前把这笔账算清楚：码率（Mbps 与 MB/s 差 8 倍）、文件大小、介质能录多久、写入速度够不够、上传要多久、素材要几张卡。全部由你填数字，页面不联网。">
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --ink:#161b22; --ink2:#4a5568; --ink3:#7b8794;
+    --line:#e3e6eb; --line2:#cbd2da; --brand:#0f5fa6; --brand2:#eaf2fa;
+    --good:#0f7b52; --goodbg:#e8f6ef; --warn:#9a5b00; --warnbg:#fff5e5; --bad:#b42318; --badbg:#fdeceb;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+  .app{max-width:1340px;margin:0 auto;padding:22px 18px 60px;display:grid;grid-template-columns:436px minmax(0,1fr);gap:18px;align-items:start}
+  .app > *{min-width:0}
+  header.top{grid-column:1/-1;padding:4px 2px 0}
+  h1{margin:0 0 6px;font-size:26px;letter-spacing:.2px}
+  .lede{margin:0;color:var(--ink2);max-width:960px}
+  .badges{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+  .badge{font-size:12px;padding:3px 9px;border-radius:999px;background:#fff;border:1px solid var(--line2);color:var(--ink2)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,32,64,.04)}
+  .card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card h3{margin:16px 0 8px;font-size:14px;color:var(--ink2)}
+  .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--brand2);color:var(--brand);border:1px solid #d3e3f5}
+  .tag.gray{background:#f1f3f6;color:var(--ink2);border-color:var(--line2)}
+  .field{margin-bottom:11px}
+  .field label{display:block;font-size:13px;color:var(--ink2);margin-bottom:4px}
+  .field label .sub{color:var(--ink3);font-size:12px}
+  input[type=text],select{width:100%;padding:8px 10px;border:1px solid var(--line2);border-radius:9px;font-size:14px;background:#fff;color:var(--ink);font-variant-numeric:tabular-nums}
+  input[type=text]:focus,select:focus{outline:2px solid #bcd8f0;border-color:var(--brand)}
+  input.bad,select.bad{border-color:var(--bad);background:var(--badbg)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  button{font:inherit;font-size:13px;padding:8px 12px;border-radius:9px;border:1px solid var(--line2);background:#fff;color:var(--ink);cursor:pointer}
+  button:hover{background:#f7f9fb}
+  button.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+  button.primary:hover{background:#0d4f8a}
+  button.tiny{font-size:12px;padding:4px 8px}
+  button.on{border-color:var(--brand);background:var(--brand2);color:var(--brand);font-weight:600}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .btns > *{min-width:0}
+  .footnote{font-size:12px;color:var(--ink3);margin-top:8px;line-height:1.55}
+  .footnote b{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th{color:var(--ink2);font-weight:600;background:#fafbfc;font-size:12px}
+  th:first-child,td:first-child{text-align:left;white-space:normal;word-break:break-word}
+  tbody tr.pick{cursor:pointer}
+  tbody tr.pick:hover{background:#f7f9fb}
+  tbody tr.sel{background:var(--brand2)}
+  tr.sum td{font-weight:700;background:#fafbfc;white-space:normal;line-height:1.35}
+  .tw{overflow-x:auto;max-width:100%}
+  #clipTable{min-width:724px}
+  #clipTable th:nth-child(1),#clipTable td:nth-child(1){width:172px}
+  #clipTable th:nth-child(2),#clipTable td:nth-child(2){width:92px}
+  #clipTable .pill{font-size:11px;padding:2px 7px;margin-top:3px;display:inline-block}
+  #sensTable{min-width:700px}
+  #cardTable{min-width:560px}
+  #revTable{min-width:620px}
+  #revTable th:nth-child(1),#revTable td:nth-child(1){width:210px}
+  .pill{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid}
+  .pill.ok{background:var(--goodbg);color:var(--good);border-color:#bfe3d2}
+  .pill.tight{background:var(--warnbg);color:var(--warn);border-color:#f0d9b5}
+  .pill.bad{background:var(--badbg);color:var(--bad);border-color:#f3c6c3}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin:2px 0 6px}
+  .kpi{background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+  .kpi .lab{font-size:11.5px;color:var(--ink3)}
+  .kpi .val{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;word-break:break-word;line-height:1.3}
+  .kpi .note{font-size:11.5px;color:var(--ink3);margin-top:2px}
+  .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:13.5px}
+  .kv .k{color:var(--ink3)}
+  .kv .v{min-width:0;word-break:break-word}
+  .ins{margin:0;padding:0;list-style:none}
+  .ins li{padding:9px 0;border-bottom:1px dashed var(--line)}
+  .ins li:last-child{border-bottom:0}
+  .ins b{display:block;font-size:14px;margin-bottom:2px}
+  .ins span{color:var(--ink2);font-size:13px}
+  .steps{margin:0;padding:0;list-style:none}
+  .steps li{padding:9px 0;border-bottom:1px dashed var(--line)}
+  .steps li:last-child{border-bottom:0}
+  .steps b{display:block;font-size:14px;margin-bottom:3px}
+  .steps span{color:var(--ink2);font-size:13px;display:block}
+  .steps button{margin-top:6px}
+  .warnbox{background:var(--warnbg);border:1px solid #f0d9b5;border-radius:10px;padding:10px 12px;font-size:13px;color:#6b3f00;margin-top:8px}
+  .errbox{background:var(--badbg);border:1px solid #f3c6c3;border-radius:10px;padding:10px 12px;font-size:13px;color:#7a1a12;margin-bottom:10px}
+  .errbox ul{margin:6px 0 0;padding-left:18px}
+  .okbox{background:var(--goodbg);border:1px solid #bfe3d2;border-radius:10px;padding:10px 12px;font-size:13px;color:#0b5c3e;margin-top:8px}
+  #chartWrap{border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px 4px 2px}
+  #chart{display:block;width:100%;height:auto}
+  #chart svg{display:block;width:100%;max-width:100%;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--ink2);margin:6px 2px 0}
+  .legend i{display:inline-block;width:13px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+  .checks{font-size:12.5px;margin:0;padding:0;list-style:none}
+  .checks li{margin:3px 0;color:var(--ink2);word-break:break-word}
+  .checks li b{color:var(--ink)}
+  .checks .no{color:var(--bad)}
+  .item{border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-bottom:9px;background:#fcfdfe}
+  .item.on{border-color:#bcd8f0;background:#f7fbff}
+  .itemhead{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px;align-items:center;margin-bottom:7px}
+  .itemhead .idx{font-size:12px;color:var(--ink3);white-space:nowrap}
+  .itemhead input{padding:5px 7px;font-size:13px}
+  .gridp{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:7px}
+  .gridp label{display:block;font-size:11.5px;color:var(--ink3);line-height:1.4}
+  .gridp input,.gridp select{width:100%;padding:6px 8px;font-size:13px}
+  .partsum{font-size:12.5px;color:var(--ink2);margin:2px 0 8px}
+  .partsum b{font-variant-numeric:tabular-nums}
+  .partsum .bad{color:var(--bad);font-weight:700}
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#161b22;color:#fff;font-size:13px;padding:9px 16px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:99;max-width:86vw;text-align:center}
+  .scrollhint{display:none}
+  @media (max-width:900px){ .scrollhint{display:block;color:var(--brand)} }
+  details.note{font-size:12.5px;color:var(--ink2);margin-top:8px}
+  details.note summary{cursor:pointer;color:var(--brand)}
+  details.note p{margin:6px 0 0}
+  code{background:#f1f3f6;border-radius:4px;padding:1px 4px;font-size:12.5px}
+  @media (max-width:900px){
+    .app{grid-template-columns:minmax(0,1fr);padding:16px 12px 48px}
+    h1{font-size:22px}
+    .row3{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:400px){
+    .row2,.row3{grid-template-columns:minmax(0,1fr)}
+  }
+  @media print{
+    body{background:#fff}
+    .btns,button,#toast,select{display:none!important}
+    .card{break-inside:avoid;box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>视频存储对账台</h1>
+    <p class="lede">按下录制键之前，先把这本账算清楚：这个码率<b>每分钟占多少、录满目标时长文件多大</b>，手上这张介质<b>到底能录多久</b>，写入速度够不够（V30 到底是多快），录完<b>传上去要多久</b>，以及成片之外<b>素材一共要几张卡</b>。全部由你填数字，页面不联网、不查机型规格。</p>
+    <div class="badges">
+      <span class="badge">码率按恒定处理（不建模 VBR 波动）</span>
+      <span class="badge">GB 用 10^9、GiB 用 2^30，两种口径都显示</span>
+      <span class="badge">18 项结构自检每次重算都跑</span>
+      <span class="badge">bpp 只用于档位之间横向比，不是画质评分</span>
+      <span class="badge">默认数据与 9 个内置场景都是虚构示例</span>
+    </div>
+  </header>
+
+  <section class="left">
+    <div class="card">
+      <h2>① 录制档位 <span class="tag gray" id="clipTag">—</span></h2>
+      <div class="field"><label>这次拍的是什么<span class="sub">只用于显示</span></label><input type="text" id="g-label"></div>
+      <p class="footnote">每个档位填：<b>分辨率 × 帧率</b>、<b>码率</b>与它的单位、编码标签。点档位右上角的「选中」把它设为当前档位，右下方的结论、曲线与反推都跟着它走。码率单位 <code>Mbps</code> 与 <code>MB/s</code> 差 8 倍，填错这一个选项，后面每个数都会错。</p>
+      <div id="clips"></div>
+      <div class="btns">
+        <button id="btnAddClip" class="tiny">加一个档位</button>
+        <button id="btnDelClip" class="tiny">删最后一个档位</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>② 音频与封装</h2>
+      <div class="row3">
+        <div class="field"><label>单音轨码率（kbps）</label><input type="text" id="g-audioKbps"></div>
+        <div class="field"><label>音轨数</label><input type="text" id="g-audioTracks"></div>
+        <div class="field"><label>封装开销（%）</label><input type="text" id="g-overheadPct"></div>
+      </div>
+      <p class="footnote">音频比特率 = 单音轨 kbps × 音轨数；封装开销是音视频之外多出来的那一点点（容器头、索引、交错填充），填 0 就是严格按码率算。</p>
+    </div>
+
+    <div class="card">
+      <h2>③ 介质 <span class="tag gray" id="mediaTag">—</span></h2>
+      <div class="row2">
+        <div class="field"><label>标称容量</label><input type="text" id="g-capacity"></div>
+        <div class="field"><label>容量口径</label><select id="g-capacityUnit"><option value="GB">GB（10^9，厂商口径）</option><option value="GiB">GiB（2^30，系统口径）</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>可用比例（%）</label><input type="text" id="g-usablePct"></div>
+        <div class="field"><label>保证持续写入（MB/s）<span class="sub">0 = 未填</span></label><input type="text" id="g-gradeMBps"></div>
+      </div>
+      <p class="footnote" id="mediaNote">—</p>
+    </div>
+
+    <div class="card">
+      <h2>④ 目标与上传</h2>
+      <div class="row3">
+        <div class="field"><label>目标录制时长（分钟）</label><input type="text" id="g-targetMinutes"></div>
+        <div class="field"><label>上行带宽（Mbps）</label><input type="text" id="g-uploadMbps"></div>
+        <div class="field"><label>带宽利用率（%）</label><input type="text" id="g-uploadUtilPct"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>期望上传时间（分钟）</label><input type="text" id="g-targetUploadMinutes"></div>
+        <div class="field"><label>素材倍率（拍 N 分钟剪 1 分钟）</label><input type="text" id="g-shootRatio"></div>
+        <div class="field"><label>机位台数</label><input type="text" id="g-cameras"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>代理文件码率（Mbps）<span class="sub">0 = 不做代理</span></label><input type="text" id="g-proxyMbps"></div>
+        <div class="field"><label>bpp 参考下限</label><input type="text" id="g-bppRef"></div>
+      </div>
+      <p class="footnote">「素材倍率 × 机位」决定要存多少素材：成片 1 小时、拍 3 倍素材、2 台机位，就是 6 小时素材。bpp 参考下限只是你自己划的一条线（默认 0.06 是设计选择，不是标准），低于它页面会提示码率至少要多少。</p>
+    </div>
+
+    <div class="card">
+      <h2>⑤ 场景与文件</h2>
+      <div class="field"><label>内置场景（全部为虚构示例）</label><select id="scenario"></select></div>
+      <div class="btns">
+        <button id="btnReset">恢复默认</button>
+        <button id="btnSave">保存到本机</button>
+        <button id="btnLoad">读取本机</button>
+      </div>
+      <div class="btns" style="margin-top:8px">
+        <label class="tiny" style="display:inline-block;border:1px solid var(--line2);border-radius:9px;padding:8px 12px;cursor:pointer;font-size:13px">
+          导入备份 JSON<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+        </label>
+      </div>
+      <div class="btns" style="margin-top:8px">
+        <button id="btnCsv">导出 CSV</button>
+        <button id="btnMd">导出 Markdown</button>
+        <button id="btnPng">导出结果卡 PNG</button>
+        <button id="btnJson">导出备份 JSON</button>
+        <button id="btnPrint">打印</button>
+      </div>
+      <p class="footnote" id="storeNote">「保存到本机」写的是浏览器 localStorage，刷新后自动恢复；不上传任何数据。</p>
+    </div>
+  </section>
+
+  <section class="right">
+    <div id="errBox"></div>
+    <div class="card" id="resultCard">
+      <h2>结论 <span id="verdictPill">—</span></h2>
+      <div id="verdictDetail" class="kv"></div>
+      <div class="kpis" id="kpis"></div>
+      <p class="footnote" id="baselineNote"></p>
+    </div>
+
+    <div class="card">
+      <h2>容量曲线：占用什么时候追上介质 <span class="tag gray" id="chartTag">—</span></h2>
+      <div id="chartWrap"><div id="chart"></div></div>
+      <div class="legend" id="legend"></div>
+      <p class="footnote">横轴是录制时长，纵轴是十进制 GB。每条直线是一个档位的占用速度（斜率 = 每分钟多少 GB），那条红色的水平虚线是介质<b>可用容量</b>：直线与它的交点，就是这一档能录多久。竖虚线是目标时长。</p>
+    </div>
+
+    <div class="card">
+      <h2>要记住的几条</h2>
+      <ul class="ins" id="insights"></ul>
+    </div>
+
+    <div class="card">
+      <h2>下一步（能直接改到输入上）</h2>
+      <ul class="steps" id="steps"></ul>
+    </div>
+
+    <div class="card">
+      <h2>反推：容量 / 带宽 / 码率的临界值 <span class="tag" id="revTag">—</span></h2>
+      <div id="revBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>档位账</h2>
+      <p class="footnote scrollhint">表格比屏幕宽：左右滑动可以看到全部列（分辨率 / 帧率 / 码率 / 每秒 MB / 目标文件 / 可录时长 / 写入需求 / bpp / 判定）。</p>
+      <div class="tw"><table id="clipTable"><thead><tr>
+        <th>档位（含判定）</th><th>分辨率</th><th>帧率</th><th>码率</th><th>每秒 MB</th><th>目标文件</th><th>可录时长</th><th>写入需求</th><th>bpp</th>
+      </tr></thead><tbody id="clipBody"></tbody></table></div>
+      <p class="footnote">「目标文件」= 选中时长下这一档要占的空间；「可录时长」= 介质可用容量 ÷ 这一档的每秒占用。点表格里的行也能切换当前档位；判定标签放在第一列，是为了在桌面上不用横向滚动也能看到它。</p>
+    </div>
+
+    <div class="card">
+      <h2>素材、卡与上传账</h2>
+      <div class="tw"><table id="cardTable"><thead><tr>
+        <th>项目</th><th>时长</th><th>大小</th><th>说明</th>
+      </tr></thead><tbody id="cardBody"></tbody></table></div>
+      <p class="footnote">素材 = 目标时长 × 素材倍率 × 机位；代理文件按素材时长算；成片只算一份。卡张数 = 项目总量 ÷ 单张可用容量，向上取整。</p>
+    </div>
+
+    <div class="card">
+      <h2>敏感性（每一行完整重算，不是插值）</h2>
+      <p class="footnote scrollhint">表格比屏幕宽：左右滑动可以看到全部列。</p>
+      <div class="tw"><table id="sensTable"><thead><tr>
+        <th>改法</th><th>每秒 MB</th><th>目标文件</th><th>可录时长</th><th>上传</th><th>卡张数</th><th>判定</th>
+      </tr></thead><tbody id="sensBody"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <h2>结构自检 <span class="tag gray" id="checkTag">—</span></h2>
+      <ul class="checks" id="checks"></ul>
+      <p class="footnote">这 18 项在每次重算时都会跑一遍：恒等式（每秒占用 = （视频 + 音频）× 开销 ÷ 8、目标文件 = 每秒占用 × 秒数、可录时长 = 可用容量 ÷ 每秒占用）、单位不变性（Mbps 与 MB/s 的等价写法必须给出逐位相同的数）、GB 与 GiB 的换算、卡张数的最优性、三条反推的回代、单调性、写入不达标时强制判「不够」，以及全程没有 NaN / 无穷大。它们只证明这本账内部自洽，你填的码率与容量是不是真的，仍要你自己核查。</p>
+    </div>
+
+    <div class="card">
+      <h2>这本账算不了什么</h2>
+      <ul class="checks">
+        <li>码率按<b>恒定</b>处理：真实素材是 VBR，复杂场景的瞬时码率会高很多（现场掉帧常常出在这里），本页不算峰值、不算掉速曲线、不算温度降频。</li>
+        <li>写入判定用的是<b>平均码率 ÷ 8</b> 对介质保证的最低持续写入速度：所以「刚好达标」不是安全结论，「卡速够」也不等于这张卡在你机身上一定不掉帧。</li>
+        <li>容量一律按标称与可用比例折算，<b>不建模文件系统簇大小、相机分段与索引文件、坏块与预留空间</b>。</li>
+        <li>上传时长不考虑<b>协议开销、重传、服务端限速、断点续传与免费额度</b>；网盘/平台的实际速度常低于带宽。</li>
+        <li><b>bpp 只是「码率 ÷ 像素率」这个比值</b>，用来横向比档位；它不是画质评分，也不代表编码器的效率高低。</li>
+        <li>不测真实码率与画质、不判断器材好坏、不给购买建议、不查真实卡价与机型规格、不联网。</li>
+      </ul>
+    </div>
+  </section>
+</div>
+<div id="toast"></div>
+<script>/* 视频存储对账台 · core.js
+ * 录视频之前把这笔账算清楚：能录多久、文件多大、要买多大的卡、传上去要多久。
+ *
+ * ── 需求简报（详见 ../需求与调研.md） ─────────────────────────────
+ * 输入范围与单位：
+ *   label 本轮拍摄的名称（只用于显示）
+ *   clips[]  1–8 个录制档位，每个填：
+ *     name 档位名 | w,h 分辨率 px [16, 20000] 整数 | fps 帧率 (0, 1000]
+ *     rateUnit 码率单位 'Mbps' | 'MB/s' | rate 码率 (0, 100000]
+ *     codec 编码标签 'H.264'|'H.265'|'ProRes'|'其他'（只用于显示与备注）
+ *   audioKbps 单音轨码率 kbps [0, 10000]；audioTracks 音轨数 [1, 16]
+ *   overheadPct 封装/容器开销 % [0, 50]（音视频之外的额外占比）
+ *   targetMinutes 目标录制时长 分钟 (0, 100000]
+ *   capacity 介质标称容量 (0, 1e7] + capacityUnit 'GB'(10^9 B) | 'GiB'(2^30 B)
+ *   usablePct 介质可用比例 % (0, 100]（格式化保留、系统占用、留余量）
+ *   gradeMBps 介质保证的最低持续写入 MB/s [0, 1e6]（0 = 未填，只判容量不判卡速）
+ *   uploadMbps 上行带宽 Mbps [0, 1e6]；uploadUtilPct 带宽利用率 % [0, 100]
+ *   targetUploadMinutes 期望上传完成时间 分钟 (0, 1e6]
+ *   shootRatio 素材倍率 [1, 100]（拍 N 分钟素材剪 1 分钟成片）；cameras 机位台数 [1, 16]
+ *   proxyMbps 代理文件码率 Mbps [0, 1e5]（0 = 不做代理）
+ *   bppRef 每像素每帧比特的参考下限 [0, 10]
+ *   pickedIdx 当前选中的档位下标
+ *
+ * 模型假设（都是设计选择，不是标准）：
+ *   A1 码率按「恒定」处理：真实 VBR 会波动，本页不算峰值、不算掉速曲线。
+ *   A2 文件大小 = 总比特率 × 时长 ÷ 8，另乘一个用户可填的封装开销；不建模文件系统簇大小、
+ *      不建模相机分段文件的头部开销、不建模音频与视频的 mux 交错开销差异。
+ *   A3 介质容量按标称换算到「字节」：GB 用 10^9、GiB 用 2^30；再乘可用比例得到可用字节。
+ *      相机/系统按 GiB 显示，所以标称 128 GB 的卡在系统里显示约 119.2 GiB —— 这是显示口径，不是虚标。
+ *   A4 写入判定用「平均码率 ÷ 8」对比介质保证的最低持续写入速度：现场峰值更高，
+ *      所以「刚好达标」不是安全结论（页面把这条写出来）。
+ *   A5 上传时长 = 文件字节 ÷ (带宽 ÷ 8 × 利用率)；不考虑协议开销、重传、服务端限速、断点续传。
+ *   A6 bpp（bits per pixel per frame）只是「码率 ÷ 像素率」这个比值，本页用它做**档位之间**的比较，
+ *      不把它当画质评分；参考下限由用户填，默认值只是设计选择。
+ *
+ * 关键公式：
+ *   视频比特率 vb = rate × 10^6（rateUnit=Mbps）或 rate × 8 × 10^6（rateUnit=MB/s）
+ *   音频比特率 ab = audioKbps × tracks × 1000
+ *   每秒字节 Bps = (vb + ab) × (1 + overheadPct/100) ÷ 8
+ *   目标文件字节 = Bps × targetMinutes × 60
+ *   介质字节 = capacity × (10^9 或 2^30)；可用字节 = 介质字节 × usablePct/100
+ *   可录时长(分钟) = 可用字节 ÷ Bps ÷ 60
+ *   写入需求 MB/s = Bps ÷ 10^6
+ *   bpp = vb ÷ (w × h × fps)
+ *   上传时长(分钟) = 目标文件字节 ÷ (uploadMbps×10^6÷8 × util/100) ÷ 60
+ *   素材时长 = targetMinutes × shootRatio × cameras；素材字节 = Bps × 素材时长 × 60
+ *   代理字节 = proxyMbps×10^6÷8 × 素材时长 × 60（proxyMbps>0）
+ *   项目总字节 = 素材 + 代理 + 成片
+ *   需要卡张数 = ceil(项目总字节 ÷ 可用字节)
+ *   反推 ① 要录满目标时长所需介质容量 = 目标文件字节 ÷ (usablePct/100)（换回用户单位）
+ *   反推 ② 达到目标上传时长所需带宽 = 目标文件字节 ÷ (targetUploadMinutes×60) × 8 ÷ 10^6 ÷ (util/100)
+ *   反推 ③ 达到参考 bpp 所需码率 = bppRef × w × h × fps ÷ 10^6（Mbps）
+ *   反推 ④ 写入达标所需卡速等级 = 写入需求 MB/s（映射到 V6/V10/V30/V60/V90）
+ *
+ * 输出定义：
+ *   判定三档（够用有余量 / 刚够没余量 / 不够）+ 8 个 KPI + 档位账 + 容量曲线（每个档位一条线，
+ *   与介质可用容量线的交点就是可录时长）+ 素材与上传账 + 反推 + 10 行敏感性 + 18 项结构自检。
+ *
+ * 默认场景：虚构的「婚礼跟拍 · 卡片机位」示例（4 个档位、128 GB 卡、上行 100 Mbps），
+ *           所有数字都是示例，不是任何机型的真实规格。
+ *
+ * 边界：档位 1–8 个；分辨率必须是整数 px 且 ≥16；码率 > 0；容量 > 0；可用比例 (0,100]；
+ *       上行带宽 0 或利用率 0 → 上传时长记 null（不可计算），不返回 Infinity；
+ *       素材倍率 ≥1；目标时长 > 0。
+ * 无法处理：不测真实码率与画质、不判断器材好坏、不给购买建议、不查真实卡价与机型规格、
+ *           不建模热降频/实时掉速/文件系统开销/断电坏文件、不算云盘与网盘限速、不联网。
+ */
+(function () {
+  'use strict';
+  const root = typeof window !== 'undefined' ? window : null;
+
+  const SLUG = 'clip-storage';
+  const NAME = '视频存储对账台';
+  const VERSION = '1.0.0';
+  const CLIP_MIN = 1;
+  const CLIP_MAX = 8;
+  const CODECS = ['H.264', 'H.265', 'ProRes', '其他'];
+  const RATE_UNITS = ['Mbps', 'MB/s'];
+  const CAP_UNITS = ['GB', 'GiB'];
+  const V_GRADES = [6, 10, 30, 60, 90];
+  const GB_DEC = 1e9;
+  const GIB_BIN = Math.pow(2, 30);
+  const CHECK_TOTAL = 18;
+
+  /* ── 数值解析与格式化 ───────────────────────────── */
+  function num(v) {
+    if (typeof v === 'number') return Number.isFinite(v) ? v : NaN;
+    if (v === null || v === undefined) return NaN;
+    let s = String(v).trim();
+    if (!s) return NaN;
+    s = s.replace(/[，,\s\u00a0]/g, '').replace(/[−–—]/g, '-').replace(/％/g, '%')
+      .replace(/[０-９．]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
+      .replace(/[%％]$/, '').replace(/。$/, '');
+    if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(s)) return NaN;
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
+  const clampNum = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const sum = (a) => a.reduce((x, y) => x + y, 0);
+  function round(x, d) {
+    if (!Number.isFinite(x)) return x;
+    const m = Math.pow(10, d);
+    return Math.round((x + (x >= 0 ? 1 : -1) * Number.EPSILON * Math.abs(x)) * m) / m;
+  }
+  function ceilTo(x, step) {
+    if (!Number.isFinite(x) || !Number.isFinite(step) || step <= 0) return x;
+    const n = Math.ceil(round(x / step, 9));
+    return round(n * step, 9);
+  }
+  function fmtNum(x, d) {
+    if (x === null || x === undefined || !Number.isFinite(x)) return '—';
+    const digits = d === undefined ? 2 : d;
+    const neg = x < 0;
+    const s = Math.abs(x).toFixed(digits);
+    const parts = s.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (neg ? '-' : '') + parts.join('.');
+  }
+  const fmtInt = (x) => (Number.isFinite(x) ? fmtNum(Math.round(x), 0) : '—');
+  function fmtPct(x, d) {
+    if (x === null || x === undefined || !Number.isFinite(x)) return '—';
+    return fmtNum(x, d === undefined ? 2 : d) + '%';
+  }
+  /* 十进制字节（B/KB/MB/GB/TB） */
+  function fmtBytes(bytes, d) {
+    if (bytes === null || bytes === undefined || !Number.isFinite(bytes)) return '—';
+    const digits = d === undefined ? 2 : d;
+    const a = Math.abs(bytes);
+    if (a < 1000) return fmtNum(bytes, 0) + ' B';
+    if (a < 1e6) return fmtNum(bytes / 1e3, digits) + ' KB';
+    if (a < 1e9) return fmtNum(bytes / 1e6, digits) + ' MB';
+    if (a < 1e12) return fmtNum(bytes / GB_DEC, digits) + ' GB';
+    return fmtNum(bytes / 1e12, digits) + ' TB';
+  }
+  const fmtGB = (bytes, d) => (Number.isFinite(bytes) ? fmtNum(bytes / GB_DEC, d === undefined ? 2 : d) + ' GB' : '—');
+  const fmtGiB = (bytes, d) => (Number.isFinite(bytes) ? fmtNum(bytes / GIB_BIN, d === undefined ? 2 : d) + ' GiB' : '—');
+  const fmtBytesBoth = (bytes, d) => (Number.isFinite(bytes)
+    ? fmtBytes(bytes, d) + '（' + fmtGiB(bytes, d) + '）' : '—');
+  const fmtMBps = (bps, d) => (Number.isFinite(bps) ? fmtNum(bps / 1e6, d === undefined ? 2 : d) + ' MB/s' : '—');
+  const fmtMbps = (mbps, d) => (Number.isFinite(mbps) ? fmtNum(mbps, d === undefined ? 2 : d) + ' Mbps' : '—');
+  const fmtBpp = (x) => (Number.isFinite(x) ? fmtNum(x, 3) : '—');
+  function fmtDur(minutes) {
+    if (minutes === null || minutes === undefined || !Number.isFinite(minutes)) return '—';
+    const m = Math.abs(minutes);
+    if (m < 1) return fmtNum(minutes * 60, 0) + ' 秒';
+    if (m < 60) return fmtNum(minutes, 2) + ' 分钟';
+    const h = Math.floor(minutes / 60);
+    const rest = minutes - h * 60;
+    const rd = Math.abs(rest - Math.round(rest)) < 0.05 ? 0 : (rest >= 10 ? 0 : 1);
+    if (Math.round(rest) === 0) return fmtInt(h) + ' 小时整';
+    return fmtInt(h) + ' 小时 ' + fmtNum(rest, rd) + ' 分';
+  }
+  const fmtDuration = (minutes) => fmtDur(minutes);
+
+  /* ── 默认与场景 ───────────────────────────── */
+  function defaults() {
+    return {
+      label: '婚礼跟拍 · 卡片机位',
+      clips: [
+        { name: '4K60 主档', w: 3840, h: 2160, fps: 60, rateUnit: 'Mbps', rate: 100, codec: 'H.265' },
+        { name: '4K30 省卡', w: 3840, h: 2160, fps: 30, rateUnit: 'Mbps', rate: 60, codec: 'H.265' },
+        { name: '1080p60 直播', w: 1920, h: 1080, fps: 60, rateUnit: 'Mbps', rate: 20, codec: 'H.264' },
+        { name: '1080p30 备机', w: 1920, h: 1080, fps: 30, rateUnit: 'Mbps', rate: 12, codec: 'H.264' }
+      ],
+      audioKbps: 320,
+      audioTracks: 2,
+      overheadPct: 1,
+      targetMinutes: 60,
+      capacity: 128,
+      capacityUnit: 'GB',
+      usablePct: 92,
+      gradeMBps: 30,
+      uploadMbps: 100,
+      uploadUtilPct: 80,
+      targetUploadMinutes: 60,
+      shootRatio: 3,
+      cameras: 2,
+      proxyMbps: 0,
+      bppRef: 0.06,
+      pickedIdx: 0
+    };
+  }
+  function defaultsClone() { return JSON.parse(JSON.stringify(defaults())); }
+
+  function patch(base, over) {
+    const c = JSON.parse(JSON.stringify(base));
+    Object.keys(over || {}).forEach((k) => {
+      if (k === 'clips') c.clips = JSON.parse(JSON.stringify(over.clips));
+      else if (over[k] && typeof over[k] === 'object' && !Array.isArray(over[k])) Object.assign(c[k], over[k]);
+      else c[k] = over[k];
+    });
+    return c;
+  }
+
+  function scenarios() {
+    const base = defaults();
+    const mk = (id, name, note, over) => ({ id, name, note, cfg: patch(base, over) });
+    return [
+      mk('default', '婚礼跟拍 4K60（默认）', '128 GB 卡、上行 100 Mbps、目标 60 分钟', {}),
+      mk('phone', '手机 1080p30 直播', '32 GB 卡、上行 30 Mbps、目标 120 分钟', {
+        label: '手机直播 · 1080p30', targetMinutes: 120, capacity: 32, capacityUnit: 'GB',
+        gradeMBps: 10, uploadMbps: 30, targetUploadMinutes: 60, shootRatio: 1, cameras: 1,
+        clips: [{ name: '1080p30 手机', w: 1920, h: 1080, fps: 30, rateUnit: 'Mbps', rate: 10, codec: 'H.265' }]
+      }),
+      mk('slowmo', '4K120 慢动作', '256 GB V60 卡、码率 200 Mbps、目标 30 分钟', {
+        label: '体育跟拍 · 4K120 慢动作', targetMinutes: 30, capacity: 256, gradeMBps: 60,
+        clips: [{ name: '4K120 慢动作', w: 3840, h: 2160, fps: 120, rateUnit: 'Mbps', rate: 200, codec: 'H.265' }]
+      }),
+      mk('prores', 'ProRes 高码率', '880 Mbps、上行 50 Mbps、目标 20 分钟', {
+        label: '广告片 · ProRes 422', targetMinutes: 20, uploadMbps: 50, targetUploadMinutes: 40,
+        clips: [{ name: 'ProRes 422', w: 3840, h: 2160, fps: 25, rateUnit: 'Mbps', rate: 880, codec: 'ProRes' }]
+      }),
+      mk('multicam', '三机位课程录制', '3 机位、素材倍率 5、目标 45 分钟', {
+        label: '课程录制 · 三机位', targetMinutes: 45, cameras: 3, shootRatio: 5, capacity: 512,
+        clips: [{ name: '4K30 主讲', w: 3840, h: 2160, fps: 30, rateUnit: 'Mbps', rate: 80, codec: 'H.265' },
+          { name: '1080p30 副机', w: 1920, h: 1080, fps: 30, rateUnit: 'Mbps', rate: 25, codec: 'H.264' }]
+      }),
+      mk('slowup', '上行只有 20 Mbps', '拍得下、传不上去', {
+        label: '远程交付 · 上行受限', uploadMbps: 20, targetUploadMinutes: 90, proxyMbps: 20
+      }),
+      mk('marathon', '8 小时会议录制', '长时间、目标 480 分钟', {
+        label: '会议录制 · 8 小时', targetMinutes: 480, capacity: 256, shootRatio: 1, cameras: 1,
+        clips: [{ name: '1080p30 会议', w: 1920, h: 1080, fps: 30, rateUnit: 'Mbps', rate: 8, codec: 'H.264' }]
+      }),
+      mk('tiny', '32 GB 应急卡', '卡小、目标 240 分钟', {
+        label: '外拍应急 · 32 GB', targetMinutes: 240, capacity: 32, shootRatio: 1, cameras: 1
+      }),
+      mk('nograde', '未标卡速的卡', '卡速 0 = 只判容量不判写入', {
+        label: '只剩一张杂牌卡', gradeMBps: 0, capacityUnit: 'GiB', capacity: 119
+      })
+    ];
+  }
+  function scenarioCfg(id) {
+    const s = scenarios().filter((x) => x.id === id)[0];
+    return s ? JSON.parse(JSON.stringify(s.cfg)) : defaultsClone();
+  }
+
+  /* ── 归一化 ───────────────────────────── */
+  function normClip(cl) {
+    const o = cl && typeof cl === 'object' ? cl : {};
+    return {
+      name: o.name === undefined || o.name === null ? '' : String(o.name),
+      w: num(o.w), h: num(o.h), fps: num(o.fps),
+      rateUnit: RATE_UNITS.indexOf(o.rateUnit) >= 0 ? o.rateUnit : 'Mbps',
+      rate: num(o.rate),
+      codec: CODECS.indexOf(o.codec) >= 0 ? o.codec : (o.codec === undefined || o.codec === null || o.codec === '' ? 'H.265' : '其他')
+    };
+  }
+  function normCfg(cfg) {
+    const d = defaults();
+    const c = cfg && typeof cfg === 'object' ? cfg : {};
+    const clipsIn = Array.isArray(c.clips) ? c.clips : d.clips;
+    return {
+      label: c.label === undefined || c.label === null ? d.label : String(c.label),
+      clips: clipsIn.map(normClip),
+      audioKbps: c.audioKbps === undefined ? d.audioKbps : num(c.audioKbps),
+      audioTracks: c.audioTracks === undefined ? d.audioTracks : num(c.audioTracks),
+      overheadPct: c.overheadPct === undefined ? d.overheadPct : num(c.overheadPct),
+      targetMinutes: c.targetMinutes === undefined ? d.targetMinutes : num(c.targetMinutes),
+      capacity: c.capacity === undefined ? d.capacity : num(c.capacity),
+      capacityUnit: CAP_UNITS.indexOf(c.capacityUnit) >= 0 ? c.capacityUnit : d.capacityUnit,
+      usablePct: c.usablePct === undefined ? d.usablePct : num(c.usablePct),
+      gradeMBps: c.gradeMBps === undefined ? d.gradeMBps : num(c.gradeMBps),
+      uploadMbps: c.uploadMbps === undefined ? d.uploadMbps : num(c.uploadMbps),
+      uploadUtilPct: c.uploadUtilPct === undefined ? d.uploadUtilPct : num(c.uploadUtilPct),
+      targetUploadMinutes: c.targetUploadMinutes === undefined ? d.targetUploadMinutes : num(c.targetUploadMinutes),
+      shootRatio: c.shootRatio === undefined ? d.shootRatio : num(c.shootRatio),
+      cameras: c.cameras === undefined ? d.cameras : num(c.cameras),
+      proxyMbps: c.proxyMbps === undefined ? d.proxyMbps : num(c.proxyMbps),
+      bppRef: c.bppRef === undefined ? d.bppRef : num(c.bppRef),
+      pickedIdx: c.pickedIdx === undefined ? d.pickedIdx : Math.round(num(c.pickedIdx))
+    };
+  }
+
+  /* ── 校验 ───────────────────────────── */
+  function validate(cfg) {
+    const c = normCfg(cfg);
+    const errors = [];
+    const warnings = [];
+    const E = (field, msg) => errors.push({ field, msg });
+    const inRange = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
+
+    if (!c.clips.length) E('clips', '至少要有 1 个录制档位');
+    if (c.clips.length > CLIP_MAX) E('clips', '最多 8 个录制档位，当前 ' + c.clips.length + ' 个');
+    c.clips.forEach((cl, i) => {
+      const tag = 'clips[' + i + ']';
+      const nm = cl.name ? '「' + cl.name + '」' : '第 ' + (i + 1) + ' 档';
+      if (!Number.isFinite(cl.w) || !Number.isFinite(cl.h) || cl.w < 16 || cl.h < 16 || cl.w > 20000 || cl.h > 20000) {
+        E(tag + '.wh', nm + ' 的分辨率必须是 16–20000 之间的数字（宽 × 高）');
+      } else if (Math.abs(cl.w - Math.round(cl.w)) > 1e-9 || Math.abs(cl.h - Math.round(cl.h)) > 1e-9) {
+        E(tag + '.wh', nm + ' 的分辨率必须是整数像素');
+      }
+      if (!Number.isFinite(cl.fps) || cl.fps <= 0 || cl.fps > 1000) E(tag + '.fps', nm + ' 的帧率必须在 (0, 1000] 之间');
+      if (!Number.isFinite(cl.rate) || cl.rate <= 0) E(tag + '.rate', nm + ' 的码率必须大于 0');
+      else if (cl.rate > 100000) E(tag + '.rate', nm + ' 的码率超过 100000（' + cl.rateUnit + '），请检查单位是否选错');
+    });
+    if (!inRange(c.audioKbps, 0, 10000)) E('audioKbps', '单音轨码率必须在 0–10000 kbps 之间');
+    if (!inRange(c.audioTracks, 1, 16)) E('audioTracks', '音轨数必须在 1–16 之间');
+    else if (Math.abs(c.audioTracks - Math.round(c.audioTracks)) > 1e-9) E('audioTracks', '音轨数必须是整数');
+    if (!inRange(c.overheadPct, 0, 50)) E('overheadPct', '封装开销必须在 0–50% 之间');
+    if (!Number.isFinite(c.targetMinutes) || c.targetMinutes <= 0 || c.targetMinutes > 100000) {
+      E('targetMinutes', '目标录制时长必须在 (0, 100000] 分钟之间');
+    }
+    if (!Number.isFinite(c.capacity) || c.capacity <= 0 || c.capacity > 1e7) E('capacity', '介质容量必须大于 0（单位 ' + c.capacityUnit + '）');
+    if (!Number.isFinite(c.usablePct) || c.usablePct <= 0 || c.usablePct > 100) E('usablePct', '可用比例必须在 (0, 100] 之间');
+    if (!inRange(c.gradeMBps, 0, 1e6)) E('gradeMBps', '保证持续写入速度必须在 0–1e6 MB/s 之间（0 = 未填）');
+    if (!inRange(c.uploadMbps, 0, 1e6)) E('uploadMbps', '上行带宽必须在 0–1e6 Mbps 之间');
+    if (!inRange(c.uploadUtilPct, 0, 100)) E('uploadUtilPct', '带宽利用率必须在 0–100% 之间');
+    if (!Number.isFinite(c.targetUploadMinutes) || c.targetUploadMinutes <= 0 || c.targetUploadMinutes > 1e6) {
+      E('targetUploadMinutes', '期望上传时间必须在 (0, 1000000] 分钟之间');
+    }
+    if (!inRange(c.shootRatio, 1, 100)) E('shootRatio', '素材倍率必须在 1–100 之间');
+    if (!inRange(c.cameras, 1, 16)) E('cameras', '机位台数必须在 1–16 之间');
+    else if (Math.abs(c.cameras - Math.round(c.cameras)) > 1e-9) E('cameras', '机位台数必须是整数（半台机位没有意义）');
+    if (!inRange(c.proxyMbps, 0, 1e5)) E('proxyMbps', '代理文件码率必须在 0–100000 Mbps 之间（0 = 不做代理）');
+    if (!inRange(c.bppRef, 0, 10)) E('bppRef', 'bpp 参考下限必须在 0–10 之间');
+
+    if (!errors.length) {
+      const sel = clampIdx(c.pickedIdx, c.clips.length);
+      if (c.gradeMBps === 0) warnings.push('卡速填 0：本次只判「容量够不够」，不判「写入速度够不够」。');
+      if (c.uploadMbps === 0 || c.uploadUtilPct === 0) warnings.push('上行带宽或利用率是 0：上传时长不可计算，会显示「—」而不是无穷大。');
+      if (c.usablePct > 95) warnings.push('可用比例 ' + fmtPct(c.usablePct, 0) + ' 偏高：格式化与文件系统通常会占掉一部分，实际能用的字节往往更少。');
+      const r = quickRate(c, sel);
+      if (Number.isFinite(r.writeMBps) && c.gradeMBps > 0 && r.writeMBps > c.gradeMBps * 0.9 && r.writeMBps <= c.gradeMBps) {
+        warnings.push('写入需求 ' + fmtMBps(r.bps) + ' 已经贴到卡速上限 ' + fmtNum(c.gradeMBps, 1) + ' MB/s：现场峰值更高时会掉帧，别把「刚好达标」当安全。');
+      }
+      if (c.clips.length === 1) warnings.push('只填了 1 个档位：档位之间没法对照，把备选档位也填上才能看出每像素比特的差别。');
+    }
+    return { ok: errors.length === 0, errors, warnings, cfg: c };
+  }
+  function clampIdx(i, n) {
+    if (!Number.isFinite(i)) return 0;
+    return Math.max(0, Math.min(n - 1, Math.round(i)));
+  }
+
+  /* ── 单档位换算（供校验、检查、敏感性复用） ───────────── */
+  function clipBitsPerSec(clip) {
+    const rate = num(clip.rate);
+    return clip.rateUnit === 'MB/s' ? rate * 8e6 : rate * 1e6;
+  }
+  function quickRate(c, idx) {
+    const cl = c.clips[clampIdx(idx, c.clips.length)] || c.clips[0];
+    if (!cl) return { bps: NaN, wireMBps: NaN, bpp: NaN, videoBits: NaN, audioBits: NaN };
+    const videoBits = clipBitsPerSec(cl);
+    const audioBits = num(c.audioKbps) * num(c.audioTracks) * 1000;
+    const bps = (videoBits + audioBits) * (1 + num(c.overheadPct) / 100) / 8;
+    const px = num(cl.w) * num(cl.h) * num(cl.fps);
+    return {
+      videoBits, audioBits, bps, writeMBps: bps / 1e6,
+      bpp: px > 0 && Number.isFinite(videoBits) ? videoBits / px : NaN
+    };
+  }
+
+  function mediaBytes(c) {
+    const cap = num(c.capacity);
+    const unit = c.capacityUnit === 'GiB' ? GIB_BIN : GB_DEC;
+    const total = cap * unit;
+    return { total, usable: total * num(c.usablePct) / 100, unitBytes: unit };
+  }
+
+  function verdictOf(ratio, writeOk) {
+    if (writeOk === false) return { id: 'bad', label: '不够', why: '卡速不足' };
+    if (!Number.isFinite(ratio)) return { id: 'bad', label: '不够', why: '无法计算' };
+    if (ratio >= 1.2) return { id: 'ok', label: '够用，有余量', why: '容量与写入速度都通过' };
+    if (ratio >= 1) return { id: 'tight', label: '刚够，没余量', why: '容量刚好覆盖目标时长' };
+    return { id: 'bad', label: '不够', why: ratio > 0 ? '容量不够' : '无法计算' };
+  }
+
+  function gradeLabel(need) {
+    if (!Number.isFinite(need)) return null;
+    for (let i = 0; i < V_GRADES.length; i++) if (need <= V_GRADES[i] + 1e-9) return 'V' + V_GRADES[i];
+    return null;
+  }
+
+  /* ── 主计算 ───────────────────────────── */
+  function analyze(cfg) {
+    const c = normCfg(cfg);
+    const v = validate(c);
+    if (!v.ok) {
+      const err = new Error('输入有 ' + v.errors.length + ' 处问题，未计算');
+      err.validation = v;
+      throw err;
+    }
+    const m = mediaBytes(c);
+    const targetSec = num(c.targetMinutes) * 60;
+    const overhead = 1 + num(c.overheadPct) / 100;
+    const audioBits = num(c.audioKbps) * num(c.audioTracks) * 1000;
+    const upBytesPerSec = num(c.uploadMbps) * 1e6 / 8 * (num(c.uploadUtilPct) / 100);
+    const selIdx = clampIdx(c.pickedIdx, c.clips.length);
+
+    const clips = c.clips.map((cl, i) => {
+      const videoBits = clipBitsPerSec(cl);
+      const totalBits = (videoBits + audioBits) * overhead;
+      const bps = totalBits / 8;
+      const pxRate = cl.w * cl.h * cl.fps;
+      const bpp = pxRate > 0 ? videoBits / pxRate : NaN;
+      const targetBytes = bps * targetSec;
+      const recordMin = m.usable / bps / 60;
+      const writeMBps = bps / 1e6;
+      const ratio = recordMin / num(c.targetMinutes);
+      const writeOk = num(c.gradeMBps) > 0 ? writeMBps <= num(c.gradeMBps) + 1e-9 : null;
+      const uploadMin = upBytesPerSec > 0 ? targetBytes / upBytesPerSec / 60 : null;
+      return {
+        idx: i, name: cl.name, w: cl.w, h: cl.h, fps: cl.fps, rateUnit: cl.rateUnit, rate: cl.rate, codec: cl.codec,
+        videoBits, audioBits, totalBits, bps, bpp, pxRate,
+        mbPerMin: bps * 60 / 1e6, gbPerHour: bps * 3600 / GB_DEC,
+        targetBytes, targetGB: targetBytes / GB_DEC, targetGiB: targetBytes / GIB_BIN,
+        recordMin, recordSec: recordMin * 60, writeMBps, writeOk, ratio, uploadMin,
+        verdict: verdictOf(ratio, writeOk),
+        gradeNeed: gradeLabel(writeMBps)
+      };
+    });
+
+    const sel = clips[selIdx];
+    const sourceMin = num(c.targetMinutes) * num(c.shootRatio) * num(c.cameras);
+    const sourceBytes = sel.bps * sourceMin * 60;
+    const proxyBytes = num(c.proxyMbps) > 0 ? num(c.proxyMbps) * 1e6 / 8 * sourceMin * 60 : 0;
+    const deliveryBytes = sel.targetBytes;
+    const projectBytes = sourceBytes + proxyBytes + deliveryBytes;
+    const cardsNeeded = m.usable > 0 ? Math.ceil(round(projectBytes / m.usable, 9)) : null;
+
+    const rev = {
+      reqCapacityBytes: sel.targetBytes / (num(c.usablePct) / 100),
+      reqGradeMBps: sel.writeMBps,
+      reqGradeV: gradeLabel(sel.writeMBps),
+      reqUploadMbps: (sel.targetBytes / (num(c.targetUploadMinutes) * 60)) * 8 / 1e6 / (num(c.uploadUtilPct) / 100),
+      reqRateMbpsForBpp: num(c.bppRef) * sel.pxRate / 1e6,
+      targetCapacityBytes: sel.targetBytes
+    };
+    rev.reqCapacity = rev.reqCapacityBytes / m.unitBytes;
+    rev.capacityShortGB = Math.max(0, rev.reqCapacityBytes - m.total) / GB_DEC;
+    rev.uploadOverMin = sel.uploadMin === null ? null : sel.uploadMin - num(c.targetUploadMinutes);
+
+    const res = {
+      cfg: c, clips, selIdx, sel, media: m,
+      targetSec, targetMinutes: num(c.targetMinutes),
+      audioBits, overhead, upBytesPerSec,
+      sourceMin, sourceBytes, proxyBytes, deliveryBytes, projectBytes, cardsNeeded,
+      rev,
+      scenario: c.label
+    };
+    res.checks = selfChecks(res);
+    res.checkSummary = {
+      total: res.checks.length,
+      pass: res.checks.filter((x) => x.pass).length,
+      fail: res.checks.filter((x) => !x.pass).length
+    };
+    return res;
+  }
+
+  /* ── 结构自检（每次重算都跑，项数恒定 18） ───────────── */
+  function selfChecks(res) {
+    const c = res.cfg;
+    const out = [];
+    const push = (name, pass, detail) => out.push({ name, pass: !!pass, detail: detail === undefined ? '' : String(detail) });
+    const near = (a, b, tol) => Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) <= (tol === undefined ? 1e-6 : tol) * Math.max(1, Math.abs(a), Math.abs(b));
+    const allClips = res.clips;
+
+    // 1 每秒占用 = (视频 + 音频) × 开销 ÷ 8
+    push('每秒占用 = (视频比特率 + 音频比特率) × (1 + 封装开销) ÷ 8',
+      allClips.every((k) => near(k.bps, (k.videoBits + audioBitsOf(res)) * res.overhead / 8)),
+      fmtMBps(res.sel.bps));
+
+    // 2 目标文件 = 每秒占用 × 目标秒数
+    push('目标文件字节 = 每秒占用 × 目标秒数',
+      allClips.every((k) => near(k.targetBytes, k.bps * res.targetSec)),
+      fmtBytes(res.sel.targetBytes));
+
+    // 3 可录时长 = 可用字节 ÷ 每秒占用 ÷ 60
+    push('可录时长 = 介质可用字节 ÷ 每秒占用 ÷ 60',
+      allClips.every((k) => near(k.recordMin, res.media.usable / k.bps / 60, 1e-9)),
+      fmtDur(res.sel.recordMin));
+
+    // 4 判定与 ratio / 写入速度一致
+    const verdictOk = allClips.every((k) => {
+      const want = verdictOf(k.ratio, k.writeOk);
+      return want.id === k.verdict.id;
+    });
+    push('判定与「可录时长 ÷ 目标时长」及写入速度一致', verdictOk,
+      res.sel.verdict.label + '（ratio ' + fmtNum(res.sel.ratio, 3) + '）');
+
+    // 5 bpp = 视频码率 ÷ 像素率
+    push('bpp = 视频比特率 ÷ (宽 × 高 × 帧率)',
+      allClips.every((k) => (k.pxRate > 0 ? near(k.bpp, k.videoBits / k.pxRate, 1e-9) : !Number.isFinite(k.bpp))),
+      fmtBpp(res.sel.bpp) + ' bit/像素/帧');
+
+    // 6 写入需求 = 每秒占用 ÷ 1e6
+    push('写入需求 MB/s = 每秒占用 ÷ 10^6',
+      allClips.every((k) => near(k.writeMBps, k.bps / 1e6, 1e-9)),
+      fmtMBps(res.sel.bps));
+
+    // 7 十进制 GB 与二进制 GiB 的换算关系成立
+    const rel = Math.abs(res.sel.targetGB / res.sel.targetGiB - GIB_BIN / GB_DEC);
+    push('GB 与 GiB 的换算关系成立（1 GiB = 1.0737 GB）', rel < 1e-9 && res.sel.targetGB > res.sel.targetGiB,
+      fmtGB(res.sel.targetBytes) + ' = ' + fmtGiB(res.sel.targetBytes));
+
+    // 8 介质可用字节 = 容量 × 进制系数 × 可用比例
+    const unitB = c.capacityUnit === 'GiB' ? GIB_BIN : GB_DEC;
+    push('介质可用字节 = 标称容量 × 进制系数 × 可用比例',
+      near(res.media.total, c.capacity * unitB) && near(res.media.usable, res.media.total * c.usablePct / 100),
+      fmtBytesBoth(res.media.usable));
+
+    // 9 项目总字节 = 素材 + 代理 + 成片
+    push('项目总字节 = 素材 + 代理 + 成片',
+      near(res.projectBytes, res.sourceBytes + res.proxyBytes + res.deliveryBytes),
+      fmtBytes(res.projectBytes));
+
+    // 10 卡张数最优：少一张装不下
+    const cards = res.cardsNeeded;
+    const cardOk = Number.isFinite(cards) && cards >= 1
+      && cards * res.media.usable + 1e-6 >= res.projectBytes
+      && (cards - 1) * res.media.usable < res.projectBytes - 1e-6;
+    push('所需卡张数最优（少一张就装不下）', cardOk,
+      cards + ' 张 × ' + fmtBytes(res.media.usable));
+
+    // 11 上传时长 = 文件字节 ÷ 有效上行速率（带宽 0 → null 而不是无穷）
+    const upOk = res.upBytesPerSec > 0
+      ? allClips.every((k) => near(k.uploadMin, k.targetBytes / res.upBytesPerSec / 60, 1e-9))
+      : allClips.every((k) => k.uploadMin === null);
+    push('上传时长 = 文件字节 ÷ 有效上行速率（带宽 0 时记「不可计算」）', upOk,
+      res.sel.uploadMin === null ? '不可计算（带宽或利用率为 0）' : fmtDur(res.sel.uploadMin));
+
+    // 12 反推容量回代：能覆盖目标时长
+    const backMin = res.rev.reqCapacityBytes / res.sel.bps / 60;
+    push('反推容量回代后能覆盖目标时长', backMin >= res.targetMinutes - 1e-6,
+      fmtGB(res.rev.reqCapacityBytes) + ' → ' + fmtDur(backMin));
+
+    // 13 反推带宽回代：能达到目标上传时长
+    const backUp = res.rev.reqUploadMbps * 1e6 / 8 * (c.uploadUtilPct / 100);
+    const backUpMin = backUp > 0 ? res.sel.targetBytes / backUp / 60 : NaN;
+    push('反推带宽回代后能在期望时间内传完', near(backUpMin, c.targetUploadMinutes, 1e-9),
+      fmtMbps(res.rev.reqUploadMbps) + ' → ' + fmtDur(backUpMin));
+
+    // 14 反推码率回代：bpp ≥ 参考下限
+    const backBpp = res.rev.reqRateMbpsForBpp * 1e6 / res.sel.pxRate;
+    push('反推码率回代后 bpp ≥ 参考下限', backBpp >= c.bppRef - 1e-9,
+      fmtBpp(backBpp) + '（参考下限 ' + fmtBpp(c.bppRef) + '）');
+
+    // 15 单调性：码率 +1% → 可录时长严格变短、目标文件变大
+    const up1 = quickRate(Object.assign({}, c, { clips: c.clips.map((k, i) => i === res.selIdx ? Object.assign({}, k, { rate: k.rate * 1.01 }) : k) }), res.selIdx);
+    const m1 = res.media.usable / up1.bps / 60;
+    push('单调性：码率 +1% → 可录时长严格变短、目标文件变大',
+      m1 < res.sel.recordMin && up1.bps * res.targetSec > res.sel.targetBytes,
+      fmtDur(res.sel.recordMin) + ' → ' + fmtDur(m1));
+
+    // 16 单调性：容量 +1% → 可录时长严格变长
+    const bigUsable = res.media.usable * 1.01;
+    push('单调性：介质容量 +1% → 可录时长严格变长',
+      bigUsable / res.sel.bps / 60 > res.sel.recordMin,
+      fmtDur(res.sel.recordMin) + ' → ' + fmtDur(bigUsable / res.sel.bps / 60));
+
+    // 17 单位不变性：Mbps 与 MB/s 的等价写法给出逐位相同的每秒占用
+    const altRate = res.sel.rateUnit === 'Mbps' ? res.sel.rate / 8 : res.sel.rate * 8;
+    const altUnit = res.sel.rateUnit === 'Mbps' ? 'MB/s' : 'Mbps';
+    const altCfg = Object.assign({}, c, {
+      clips: c.clips.map((k, i) => i === res.selIdx ? Object.assign({}, k, { rateUnit: altUnit, rate: altRate }) : k)
+    });
+    const alt = quickRate(altCfg, res.selIdx);
+    push('单位不变性：' + res.sel.rateUnit + ' ↔ ' + altUnit + ' 的等价写法给出相同的每秒占用',
+      near(alt.bps, res.sel.bps, 1e-12),
+      fmtNum(altRate, 4) + ' ' + altUnit + ' → ' + fmtMBps(alt.bps));
+
+    // 18 所有数值字段有限或明确为 null
+    const fields = [];
+    res.clips.forEach((k) => {
+      fields.push(k.bps, k.bpp, k.targetBytes, k.recordMin, k.writeMBps, k.ratio, k.mbPerMin, k.gbPerHour, k.totalBits,
+        k.videoBits, k.audioBits, k.pxRate);
+      if (k.uploadMin !== null) fields.push(k.uploadMin);
+    });
+    fields.push(res.media.total, res.media.usable, res.projectBytes, res.sourceBytes, res.proxyBytes, res.deliveryBytes,
+      res.rev.reqCapacityBytes, res.rev.reqUploadMbps, res.rev.reqRateMbpsForBpp, res.sourceMin, res.upBytesPerSec,
+      res.targetSec, res.targetMinutes, res.cfg.capacity);
+    const nulls = [res.sel.bpp].filter((x) => x === null);
+    const finite = fields.every((x) => Number.isFinite(x)) && nulls.length === 0;
+    const bad = fields.filter((x) => !Number.isFinite(x));
+    push('所有数值字段都是有限数（没有非数 / 无穷大）', finite,
+      '检查 ' + fields.length + ' 个字段' + (bad.length ? '，异常 ' + bad.length + ' 个' : ''));
+
+    return out;
+  }
+  function audioBitsOf(res) { return res.audioBits; }
+
+  /* ── 敏感性（每行完整重算） ───────────── */
+  function sensitivity(cfg) {
+    const c = normCfg(cfg);
+    const res = analyze(c);
+    const sel = res.sel;
+    const withClip = (over) => Object.assign({}, c, {
+      clips: c.clips.map((k, i) => i === res.selIdx ? Object.assign({}, k, over) : k)
+    });
+    const rows = [
+      { name: '选中档位码率 +20%', cfg: withClip({ rate: sel.rate * 1.2 }) },
+      { name: '选中档位码率 −20%', cfg: withClip({ rate: sel.rate * 0.8 }) },
+      { name: '帧率翻倍（' + fmtNum(sel.fps, 0) + ' → ' + fmtNum(sel.fps * 2, 0) + ' fps）', cfg: withClip({ fps: sel.fps * 2 }) },
+      { name: '分辨率减半（宽高各 ÷√2）', cfg: withClip({ w: Math.round(sel.w / Math.SQRT2), h: Math.round(sel.h / Math.SQRT2) }) },
+      { name: '封装开销 +2 个百分点', cfg: Object.assign({}, c, { overheadPct: c.overheadPct + 2 }) },
+      { name: '可用比例降到 85%', cfg: Object.assign({}, c, { usablePct: 85 }) },
+      { name: '介质容量 +64 GB', cfg: Object.assign({}, c, { capacity: c.capacity + (c.capacityUnit === 'GiB' ? 60 : 64) }) },
+      { name: '上行带宽 ×1.5', cfg: Object.assign({}, c, { uploadMbps: c.uploadMbps * 1.5 }) },
+      { name: '上行带宽 ÷2', cfg: Object.assign({}, c, { uploadMbps: c.uploadMbps / 2 }) },
+      { name: '音轨 2 → 1', cfg: Object.assign({}, c, { audioTracks: 1 }) },
+      { name: '素材倍率 +1', cfg: Object.assign({}, c, { shootRatio: c.shootRatio + 1 }) },
+      { name: '机位 +1', cfg: Object.assign({}, c, { cameras: c.cameras + 1 }) }
+    ];
+    return rows.map((r) => {
+      const q = quickRate(r.cfg, res.selIdx);
+      const med = mediaBytes(r.cfg);
+      const recMin = med.usable / q.bps / 60;
+      const ratio = recMin / r.cfg.targetMinutes;
+      const writeOk = r.cfg.gradeMBps > 0 ? q.writeMBps <= r.cfg.gradeMBps + 1e-9 : null;
+      const tBytes = q.bps * r.cfg.targetMinutes * 60;
+      const upBytes = r.cfg.uploadMbps * 1e6 / 8 * (r.cfg.uploadUtilPct / 100);
+      const srcMin = r.cfg.targetMinutes * r.cfg.shootRatio * r.cfg.cameras;
+      const projBytes = q.bps * srcMin * 60 + (r.cfg.proxyMbps > 0 ? r.cfg.proxyMbps * 1e6 / 8 * srcMin * 60 : 0) + tBytes;
+      const cards = med.usable > 0 ? Math.ceil(round(projBytes / med.usable, 9)) : null;
+      return {
+        name: r.name,
+        writeMBps: q.writeMBps,
+        targetGB: tBytes / GB_DEC,
+        recordMin: recMin,
+        usableBytes: med.usable,
+        uploadMin: upBytes > 0 ? tBytes / upBytes / 60 : null,
+        cards,
+        bpp: q.bpp,
+        verdict: verdictOf(ratio, writeOk),
+        ratio
+      };
+    });
+  }
+
+  /* ── 要记住的几条（数字全部来自同一次计算结果） ───────── */
+  function insights(res) {
+    const c = res.cfg;
+    const sel = res.sel;
+    const out = [];
+    const byBpp = res.clips.slice().filter((k) => Number.isFinite(k.bpp)).sort((a, b) => a.bpp - b.bpp);
+
+    // 1 单位陷阱
+    const trueHour = sel.bps * 3600;
+    const mistakenHour = sel.rate * 1e6 * 3600; // 把码率的数字直接当成 MB/s
+    out.push({
+      title: '码率的「Mbps」与存储的「MB/s」差 8 倍：' + fmtNum(sel.rate, 2) + ' ' + sel.rateUnit + ' 每秒写 ' + fmtMBps(sel.bps),
+      text: '这个档位每小时占 ' + fmtGB(trueHour) + '（' + fmtGiB(trueHour) + '）；如果把 ' + fmtNum(sel.rate, 2) + ' 直接当成 '
+        + fmtNum(sel.rate, 2) + ' MB/s 去乘时长，会算成 ' + fmtGB(mistakenHour) + '，是真实值的 ' + fmtNum(mistakenHour / trueHour, 2)
+        + ' 倍。相机界面、剪辑软件、网盘常常一个用 Mbps、一个用 MB/s，这是这类账最容易错的一处。'
+    });
+
+    // 2 容量口径
+    const unitName = c.capacityUnit;
+    out.push({
+      title: '标称 ' + fmtNum(c.capacity, 0) + ' ' + unitName + ' 的介质，换个口径就是另一个数',
+      text: (unitName === 'GB'
+        ? '厂商按 10^9 卖、系统按 2^30 显示：' + fmtNum(c.capacity, 0) + ' GB = ' + fmtNum(res.media.total / GIB_BIN, 2)
+          + ' GiB，所以在电脑上看只有 ' + fmtNum(res.media.total / GIB_BIN, 2) + '「GB」——这是口径差，不是虚标（差 '
+          + fmtPct((GIB_BIN / GB_DEC - 1) * 100, 2) + '）。'
+        : '你填的是二进制口径：' + fmtNum(c.capacity, 0) + ' GiB = ' + fmtNum(res.media.total / GB_DEC, 2)
+          + ' GB，相当于厂商口径标称 ' + fmtNum(res.media.total / GB_DEC, 1) + ' GB。')
+        + '再乘上你填的可用比例 ' + fmtPct(c.usablePct, 0) + '，真正能写进去的是 ' + fmtBytesBoth(res.media.usable, 2) + '。'
+    });
+
+    // 3 bpp 对照
+    if (byBpp.length >= 2) {
+      const lo = byBpp[0], hi = byBpp[byBpp.length - 1];
+      out.push({
+        title: '档位名字里的分辨率，跟「每像素拿到多少比特」不是一回事',
+        text: '这几档里每像素最薄的是「' + (lo.name || '第 ' + (lo.idx + 1) + ' 档') + '」（' + lo.w + '×' + lo.h + ' @ ' + fmtNum(lo.fps, 0)
+          + ' fps、' + fmtNum(lo.rate, 0) + ' ' + lo.rateUnit + '）只有 ' + fmtBpp(lo.bpp) + ' bit/像素/帧；最厚的是「'
+          + (hi.name || '第 ' + (hi.idx + 1) + ' 档') + '」的 ' + fmtBpp(hi.bpp) + '，是前者的 ' + fmtNum(hi.bpp / lo.bpp, 2)
+          + ' 倍。同样标着 4K 的档位之间也可能差很多，bpp 只用来横向比，本页不拿它当画质评分。'
+      });
+    }
+
+    // 4 写入 vs 卡速
+    if (sel.writeOk === null) {
+      out.push({
+        title: '卡速没填，这张卡只判了容量',
+        text: '写入需求是 ' + fmtMBps(sel.bps) + '（平均码率口径）。凭经验把卡速填上（V6=6、V10=10、V30=30、V60=60、V90=90 MB/s），页面才会告诉你掉不掉帧。'
+      });
+    } else {
+      const gradePart = sel.gradeNeed ? ('最低要 ' + sel.gradeNeed + ' 级') : '已超出常见 V 等级（V90 = 90 MB/s）';
+      const detail = sel.gradeNeed
+        ? ('等级数就是保证的最低持续写入速度：需求 ' + fmtMBps(sel.bps) + ' 对应 ' + sel.gradeNeed + '；当前标的 '
+          + fmtNum(c.gradeMBps, 0) + ' MB/s，余量 ' + fmtNum(c.gradeMBps / sel.writeMBps, 2) + ' 倍。')
+        : ('需求 ' + fmtMBps(sel.bps) + ' 已超过 V90 的 90 MB/s，普通 SD 卡基本无解，要换更高等级的介质。');
+      out.push({
+        title: '写入需求 ' + fmtMBps(sel.bps) + '：' + (sel.writeOk ? '卡速够' : '卡速不够') + '，' + gradePart,
+        text: detail + '注意这是平均码率，现场峰值与温度掉速会更高，别把「刚好达标」当安全。'
+      });
+    }
+
+    // 5 素材与卡张数
+    out.push({
+      title: '成片 ' + fmtDur(c.targetMinutes) + '，素材要拍 ' + fmtDur(res.sourceMin) + '（' + fmtNum(c.shootRatio, 0) + ' 倍素材 × ' + fmtNum(c.cameras, 0) + ' 机位）',
+      text: '素材 ' + fmtBytes(res.sourceBytes) + (res.proxyBytes > 0 ? '、代理 ' + fmtBytes(res.proxyBytes) : '')
+        + '、成片 ' + fmtBytes(res.deliveryBytes) + '，合计 ' + fmtBytesBoth(res.projectBytes, 1) + ' ≈ ' + res.cardsNeeded
+        + ' 张当前介质的全部可用空间。只按成片大小买卡，会差 ' + fmtNum(res.projectBytes / res.deliveryBytes, 2) + ' 倍。'
+    });
+
+    // 6 上传与备份
+    if (sel.uploadMin === null) {
+      out.push({
+        title: '上行带宽填的是 0，上传时长不可计算',
+        text: '页面不会拿无穷大糊弄你：把上行带宽与利用率填上，才会出现上传账。'
+      });
+    } else {
+      out.push({
+        title: '传这 ' + fmtBytes(sel.targetBytes) + ' 要 ' + fmtDur(sel.uploadMin) + '（期望 ' + fmtDur(c.targetUploadMinutes) + '）',
+        text: '按 ' + fmtMbps(c.uploadMbps) + ' × ' + fmtPct(c.uploadUtilPct, 0) + ' 利用率算，想按时传完需要 ' + fmtMbps(res.rev.reqUploadMbps)
+          + '；素材全传一遍就是 ' + fmtDur(res.projectBytes / res.upBytesPerSec / 60) + '，再加一份备份就再翻一倍。'
+      });
+    }
+    return out;
+  }
+
+  /* ── 下一步（每条都能一键改回输入） ───────────── */
+  function steps(res) {
+    const c = res.cfg;
+    const sel = res.sel;
+    const out = [];
+
+    if (sel.recordMin < c.targetMinutes) {
+      const needCap = Math.ceil(res.rev.reqCapacity);
+      out.push({
+        title: '把介质容量加到 ' + fmtNum(needCap, 0) + ' ' + c.capacityUnit + '（现在 ' + fmtNum(c.capacity, 0) + '）',
+        text: '要录满 ' + fmtDur(c.targetMinutes) + '，按可用比例 ' + fmtPct(c.usablePct, 0) + ' 至少要 ' + fmtBytesBoth(res.rev.reqCapacityBytes)
+          + '；现在只能录 ' + fmtDur(sel.recordMin) + '，还差 ' + fmtDur(c.targetMinutes - sel.recordMin) + '。',
+        patch: { scope: 'cfg', values: { capacity: needCap } }
+      });
+    } else if (sel.ratio < 1.2) {
+      const needCap = Math.ceil(res.rev.reqCapacity * 1.2);
+      out.push({
+        title: '余量只有 ' + fmtPct((sel.ratio - 1) * 100, 1) + '：建议留到 20% 以上',
+        text: '要留 20% 余量需要 ' + fmtBytesBoth(res.rev.reqCapacityBytes * 1.2) + '，也就是 ' + fmtNum(needCap, 0)
+          + ' ' + c.capacityUnit + ' 起。现场多拍几条、忘删废条都会吃掉这点余量。',
+        patch: { scope: 'cfg', values: { capacity: needCap } }
+      });
+    }
+
+    if (sel.writeOk === false) {
+      const need = ceilTo(sel.writeMBps, 0.5);
+      const fitRate = Math.max(0, c.gradeMBps * 8 / (1 + c.overheadPct / 100) - (c.audioKbps * c.audioTracks) / 1000);
+      out.push({
+        title: '换一张最低持续写入 ≥ ' + fmtNum(need, 1) + ' MB/s 的介质' + (sel.gradeNeed ? '（' + sel.gradeNeed + ' 级）' : '（超出 V90）'),
+        text: '当前档位平均写入需求 ' + fmtMBps(sel.bps) + '，卡上标的 ' + fmtNum(c.gradeMBps, 0) + ' MB/s 不够；'
+          + (fitRate > 0 ? '或者把码率降到 ' + fmtNum(fitRate, 1) + ' Mbps 以下也能塞进这张卡。' : '把码率降到这张卡能吃的水平已经不可能，只能换卡。'),
+        patch: { scope: 'cfg', values: { gradeMBps: need } }
+      });
+    }
+
+    const upPerSec = res.upBytesPerSec;
+    if (sel.uploadMin !== null && sel.uploadMin > c.targetUploadMinutes) {
+      out.push({
+        title: '上行带宽至少要 ' + fmtMbps(res.rev.reqUploadMbps) + '（现在 ' + fmtMbps(c.uploadMbps) + '）',
+        text: '想在 ' + fmtDur(c.targetUploadMinutes) + ' 内传完 ' + fmtBytes(sel.targetBytes) + '，按 ' + fmtPct(c.uploadUtilPct, 0)
+          + ' 利用率需要 ' + fmtMbps(res.rev.reqUploadMbps) + '；现在要 ' + fmtDur(sel.uploadMin) + '。',
+        patch: { scope: 'cfg', values: { uploadMbps: ceilTo(res.rev.reqUploadMbps, 1) } }
+      });
+    } else if (sel.uploadMin === null && upPerSec === 0) {
+      out.push({
+        title: '先填上行带宽与利用率，上传账才算得出来',
+        text: '带宽或利用率是 0 时页面显示「—」，不会给你一个无穷大的时间。',
+        patch: { scope: 'cfg', values: { uploadMbps: 100, uploadUtilPct: 80 } }
+      });
+    }
+
+    if (Number.isFinite(sel.bpp) && c.bppRef > 0 && sel.bpp < c.bppRef) {
+      const needMbps = ceilTo(res.rev.reqRateMbpsForBpp, 0.1);
+      const patch = { scope: 'clip', idx: res.selIdx, values: sel.rateUnit === 'Mbps' ? { rate: needMbps } : { rate: round(needMbps / 8, 4) } };
+      const shown = sel.rateUnit === 'Mbps' ? fmtMbps(needMbps) : fmtNum(round(needMbps / 8, 4), 4) + ' MB/s';
+      out.push({
+        title: '要让 bpp 回到参考下限 ' + fmtBpp(c.bppRef) + '，码率至少要 ' + shown,
+        text: '当前「' + (sel.name || '选中档位') + '」的 bpp 是 ' + fmtBpp(sel.bpp) + '，低于你自己划的参考下限；上调码率会让文件大小与容量需求同比变大。',
+        patch
+      });
+    }
+
+    if (res.cardsNeeded > 1) {
+      out.push({
+        title: '素材要 ' + res.cardsNeeded + ' 张卡（或拍完立刻倒到硬盘）',
+        text: '素材 + 代理 + 成片合计 ' + fmtBytesBoth(res.projectBytes, 1) + '，单张可用 ' + fmtBytesBoth(res.media.usable, 1)
+          + '，装不下就得再买 ' + (res.cardsNeeded - 1) + ' 张。',
+        patch: null
+      });
+    }
+
+    if (res.clips.length > 1 && Number.isFinite(sel.bpp)) {
+      const thinnest = res.clips.slice().filter((k) => Number.isFinite(k.bpp)).sort((a, b) => a.bpp - b.bpp)[0];
+      if (thinnest && thinnest.idx !== res.selIdx && thinnest.bpp < sel.bpp) {
+        out.push({
+          title: '换成「' + (thinnest.name || '第 ' + (thinnest.idx + 1) + ' 档') + '」每像素比特更低，但更省卡',
+          text: '它的 bpp 是 ' + fmtBpp(thinnest.bpp) + '（选中档 ' + fmtBpp(sel.bpp) + '），可录时长 '
+            + fmtDur(thinnest.recordMin) + '（选中档 ' + fmtDur(sel.recordMin) + '）。这是权衡，不是推荐。',
+          patch: { scope: 'cfg', values: { pickedIdx: thinnest.idx } }
+        });
+      }
+    }
+    return out.slice(0, 5);
+  }
+
+  /* ── 导出 ───────────────────────────── */
+  function backupJson(cfg) {
+    return JSON.stringify({ app: SLUG, name: NAME, version: VERSION, savedAt: new Date().toISOString(), cfg: normCfg(cfg) }, null, 2);
+  }
+  function readBackup(text) {
+    let o;
+    try { o = typeof text === 'string' ? JSON.parse(text) : text; } catch (e) { return { ok: false, error: '不是合法的 JSON：' + e.message, cfg: null }; }
+    if (!o || typeof o !== 'object') return { ok: false, error: '备份内容不是对象', cfg: null };
+    if (o.app && o.app !== SLUG) return { ok: false, error: '这份备份来自「' + o.app + '」，不是本页的备份', cfg: null };
+    const src = o.cfg && typeof o.cfg === 'object' ? o.cfg : o;
+    if (!src || typeof src !== 'object' || !Array.isArray(src.clips) || !src.clips.length) {
+      return { ok: false, error: '备份里没有可用的档位数组（clips）', cfg: null };
+    }
+    const cfg = normCfg(src);
+    const v = validate(cfg);
+    if (!v.ok) return { ok: false, error: '备份里的数据没通过校验：' + v.errors[0].msg, cfg: null };
+    return { ok: true, error: '', cfg };
+  }
+
+  function toCsv(cfg) {
+    const res = analyze(cfg);
+    const L = [];
+    const q = (s) => '"' + String(s).replace(/"/g, '""') + '"';
+    L.push(['分区', '项目', '数值', '单位或说明'].map(q).join(','));
+    const row = (a, b, c, d) => L.push([a, b, c, d].map(q).join(','));
+    res.clips.forEach((k) => {
+      row('档位账', k.name || '第 ' + (k.idx + 1) + ' 档', fmtNum(k.rate, 2), k.rateUnit + ' · ' + k.w + '×' + k.h + ' @ ' + fmtNum(k.fps, 0) + ' fps · ' + k.codec);
+      row('档位账', (k.name || '第 ' + (k.idx + 1) + ' 档') + ' 每秒占用', fmtNum(k.bps / 1e6, 4), 'MB/s');
+      row('档位账', (k.name || '第 ' + (k.idx + 1) + ' 档') + ' 每分钟占用', fmtNum(k.mbPerMin, 2), 'MB/分钟');
+      row('档位账', (k.name || '第 ' + (k.idx + 1) + ' 档') + ' 目标文件', fmtNum(k.targetGB, 4), 'GB（十进制）');
+      row('档位账', (k.name || '第 ' + (k.idx + 1) + ' 档') + ' 可录时长', fmtNum(k.recordMin, 2), '分钟');
+      row('档位账', (k.name || '第 ' + (k.idx + 1) + ' 档') + ' 写入需求', fmtNum(k.writeMBps, 3), 'MB/s');
+      row('档位账', (k.name || '第 ' + (k.idx + 1) + ' 档') + ' bpp', fmtNum(k.bpp, 4), 'bit/像素/帧');
+      row('档位账', (k.name || '第 ' + (k.idx + 1) + ' 档') + ' 判定', k.verdict.label, k.verdict.why);
+      if (k.uploadMin !== null) row('档位账', (k.name || '第 ' + (k.idx + 1) + ' 档') + ' 上传时长', fmtNum(k.uploadMin, 2), '分钟');
+    });
+    row('介质', '标称容量', fmtNum(res.cfg.capacity, 4), res.cfg.capacityUnit);
+    row('介质', '介质总字节', fmtNum(res.media.total, 0), '字节');
+    row('介质', '可用字节', fmtNum(res.media.usable, 0), '字节');
+    row('介质', '可用字节（GiB 显示）', fmtNum(res.media.usable / GIB_BIN, 2), 'GiB');
+    row('目标', '目标时长', fmtNum(res.targetMinutes, 2), '分钟');
+    row('目标', '选中档位文件大小', fmtNum(res.sel.targetGB, 4), 'GB');
+    row('目标', '选中档位可录时长', fmtNum(res.sel.recordMin, 2), '分钟');
+    row('素材', '素材时长', fmtNum(res.sourceMin, 2), '分钟');
+    row('素材', '素材字节', fmtNum(res.sourceBytes, 0), '字节');
+    row('素材', '代理字节', fmtNum(res.proxyBytes, 0), '字节');
+    row('素材', '成片字节', fmtNum(res.deliveryBytes, 0), '字节');
+    row('素材', '项目总字节', fmtNum(res.projectBytes, 0), '字节');
+    row('素材', '需要卡张数', String(res.cardsNeeded), '张');
+    row('上传', '有效上行速率', fmtNum(res.upBytesPerSec / 1e6, 4), 'MB/s');
+    if (res.sel.uploadMin !== null) row('上传', '选中档位上传时长', fmtNum(res.sel.uploadMin, 2), '分钟');
+    else row('上传', '选中档位上传时长', '不可计算', '带宽或利用率为 0');
+    row('反推', '录满目标时长所需容量', fmtNum(res.rev.reqCapacity, 4), res.cfg.capacityUnit);
+    row('反推', '达到期望上传时间所需带宽', fmtNum(res.rev.reqUploadMbps, 3), 'Mbps');
+    row('反推', '达到参考 bpp 所需码率', fmtNum(res.rev.reqRateMbpsForBpp, 3), 'Mbps');
+    row('反推', '写入达标所需卡速', fmtNum(res.rev.reqGradeMBps, 3), 'MB/s' + (res.rev.reqGradeV ? '（' + res.rev.reqGradeV + '）' : '（超出 V90）'));
+    sensitivity(res.cfg).forEach((r) => {
+      row('敏感性', r.name, fmtNum(r.writeMBps, 3), 'MB/s · 可录 ' + fmtNum(r.recordMin, 1) + ' 分钟 · ' + r.verdict.label
+        + (r.uploadMin === null ? ' · 上传不可计算' : ' · 上传 ' + fmtNum(r.uploadMin, 1) + ' 分钟'));
+    });
+    res.checks.forEach((x) => row('结构自检', x.name, x.pass ? '通过' : '不通过', x.detail));
+    return L.join('\n');
+  }
+
+  function toMd(cfg) {
+    const res = analyze(cfg);
+    const c = res.cfg;
+    const L = [];
+    L.push('# ' + NAME + ' · ' + (c.label || '未命名拍摄'));
+    L.push('');
+    L.push('> 生成时间 ' + new Date().toISOString() + '；码率、容量、带宽与比例全部来自你填的数字，页面不联网、不查机型规格。');
+    L.push('');
+    L.push('## 结论');
+    L.push('- 判定：' + res.sel.verdict.label + '（' + res.sel.verdict.why + '）');
+    L.push('- 选中档位：' + (res.sel.name || '第 ' + (res.selIdx + 1) + ' 档') + ' · ' + res.sel.w + '×' + res.sel.h + ' @ '
+      + fmtNum(res.sel.fps, 0) + ' fps · ' + fmtNum(res.sel.rate, 2) + ' ' + res.sel.rateUnit);
+    L.push('- 每秒占用 ' + fmtMBps(res.sel.bps) + '；每分钟 ' + fmtNum(res.sel.mbPerMin, 1) + ' MB；每小时 ' + fmtGB(res.sel.bps * 3600));
+    L.push('- 目标 ' + fmtDur(res.targetMinutes) + ' 的文件 ' + fmtBytesBoth(res.sel.targetBytes));
+    L.push('- 介质可用 ' + fmtBytesBoth(res.media.usable) + '，可录 ' + fmtDur(res.sel.recordMin) + '（余量 ' + fmtPct((res.sel.ratio - 1) * 100, 1) + '）');
+    L.push('- 写入需求 ' + fmtMBps(res.sel.bps) + '（' + (res.sel.writeOk === null ? '卡速未填，未判定' : res.sel.writeOk ? '卡速够' : '卡速不够') + '）');
+    L.push('- bpp ' + fmtBpp(res.sel.bpp) + ' bit/像素/帧');
+    L.push('- 上传 ' + (res.sel.uploadMin === null ? '不可计算（带宽或利用率为 0）' : fmtDur(res.sel.uploadMin)));
+    L.push('');
+    L.push('## 档位账');
+    L.push('| 档位 | 分辨率 | 帧率 | 码率 | 每秒 MB | 目标文件 | 可录时长 | 写入需求 | bpp | 判定 |');
+    L.push('|---|---|---|---|---|---|---|---|---|---|');
+    res.clips.forEach((k) => {
+      L.push('| ' + (k.name || '第 ' + (k.idx + 1) + ' 档') + ' | ' + k.w + '×' + k.h + ' | ' + fmtNum(k.fps, 0)
+        + ' | ' + fmtNum(k.rate, 2) + ' ' + k.rateUnit + ' | ' + fmtNum(k.bps / 1e6, 3) + ' | ' + fmtGB(k.targetBytes)
+        + ' | ' + fmtDur(k.recordMin) + ' | ' + fmtNum(k.writeMBps, 2) + ' MB/s | ' + fmtBpp(k.bpp) + ' | ' + k.verdict.label + ' |');
+    });
+    L.push('');
+    L.push('## 素材、卡与上传');
+    L.push('- 素材时长 ' + fmtDur(res.sourceMin) + '（' + fmtNum(c.shootRatio, 0) + ' 倍素材 × ' + fmtNum(c.cameras, 0) + ' 机位）');
+    L.push('- 素材 ' + fmtBytes(res.sourceBytes) + '；代理 ' + fmtBytes(res.proxyBytes) + '；成片 ' + fmtBytes(res.deliveryBytes));
+    L.push('- 项目总字节 ' + fmtBytesBoth(res.projectBytes) + ' ≈ ' + res.cardsNeeded + ' 张当前介质');
+    L.push('- 有效上行速率 ' + fmtMBps(res.upBytesPerSec) + '；选中档位上传 '
+      + (res.sel.uploadMin === null ? '不可计算' : fmtDur(res.sel.uploadMin)));
+    L.push('');
+    L.push('## 反推');
+    L.push('- 要录满 ' + fmtDur(res.targetMinutes) + '：介质容量至少 ' + fmtNum(res.rev.reqCapacity, 2) + ' ' + c.capacityUnit
+      + '（' + fmtBytesBoth(res.rev.reqCapacityBytes) + '）');
+    L.push('- 要在 ' + fmtDur(c.targetUploadMinutes) + ' 内传完：上行至少 ' + fmtMbps(res.rev.reqUploadMbps));
+    L.push('- 要达到参考 bpp ' + fmtBpp(c.bppRef) + '：码率至少 ' + fmtMbps(res.rev.reqRateMbpsForBpp));
+    L.push('- 写入达标：最低持续写入 ' + fmtNum(res.rev.reqGradeMBps, 2) + ' MB/s'
+      + (res.rev.reqGradeV ? '（' + res.rev.reqGradeV + '）' : '（超出 V90，需要更高等级的介质）'));
+    L.push('');
+    L.push('## 敏感性（每行完整重算，不是插值）');
+    L.push('| 改法 | 每秒 MB | 目标文件 | 可录时长 | 上传 | 卡张数 | bpp | 判定 |');
+    L.push('|---|---|---|---|---|---|---|---|');
+    sensitivity(c).forEach((r) => {
+      L.push('| ' + r.name + ' | ' + fmtNum(r.writeMBps, 3) + ' | ' + fmtGB(r.targetGB * GB_DEC) + ' | ' + fmtDur(r.recordMin)
+        + ' | ' + (r.uploadMin === null ? '—' : fmtDur(r.uploadMin)) + ' | ' + r.cards + ' | ' + fmtBpp(r.bpp) + ' | ' + r.verdict.label + ' |');
+    });
+    L.push('');
+    L.push('## 结构自检 ' + res.checkSummary.pass + '/' + res.checkSummary.total);
+    res.checks.forEach((x) => L.push('- [' + (x.pass ? 'x' : ' ') + '] ' + x.name + (x.detail ? '（' + x.detail + '）' : '')));
+    L.push('');
+    L.push('> 本页只做算术：码率按恒定处理，不建模 VBR 波动、掉速曲线、文件系统开销与平台限速；'
+      + 'bpp 只用于档位之间横向比较，不是画质评分。');
+    return L.join('\n');
+  }
+
+  const api = {
+    slug: SLUG, name: NAME, version: VERSION,
+    CLIP_MIN, CLIP_MAX, CODECS, RATE_UNITS, CAP_UNITS, V_GRADES, CHECK_TOTAL,
+    GB_DEC, GIB_BIN,
+    defaults, defaultsClone, scenarios, scenarioCfg, normCfg, validate, analyze,
+    sensitivity, insights, steps, selfChecks, quickRate, mediaBytes, verdictOf, gradeLabel,
+    backupJson, readBackup, toCsv, toMd,
+    num, clampNum, sum, round, ceilTo,
+    fmtNum, fmtInt, fmtPct, fmtBytes, fmtGB, fmtGiB, fmtBytesBoth, fmtMBps, fmtMbps, fmtBpp, fmtDur, fmtDuration
+  };
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.AppCore = api;
+})();
+</script>
+<script>/* 视频存储对账台 · ui.js
+ * 只做三件事：把输入读成 cfg、把 cfg 交给 AppCore 算、把结果画到页面上。
+ * 页面不通网、不上传任何数据；「保存到本机」写的是 localStorage。
+ */
+(function () {
+  'use strict';
+  var C = window.AppCore;
+  var LS_KEY = 'clip-storage:v1';
+  var COLORS = ['#0f5fa6', '#0f7b52', '#9a5b00', '#b42318', '#6b4fa8', '#0d7f8f', '#a8560f', '#5a6b7d'];
+  var state = { cfg: C.defaultsClone(), res: null, errs: [], warns: [], patched: null, chartNarrow: null };
+
+  /* 验收脚本用：证明「真实点击」确实落到了导出处理函数上 */
+  window.__exports = 0;
+  window.__ui = {
+    state: state,
+    refresh: function () { refresh(); },
+    rebuild: function () { renderInputs(); refresh(); },
+    applyPatch: function (p) { applyPatch(p); },
+    setCfg: function (c) { state.cfg = C.normCfg(c); renderInputs(); refresh(); }
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function mk(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined && text !== null) e.textContent = String(text);
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.style.opacity = '0'; }, 2200);
+  }
+  function download(name, text, mime) {
+    var blob = new Blob([text], { type: mime || 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
+  }
+  function downloadBlob(name, blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
+  }
+  function stamp() {
+    var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds());
+  }
+  function baseName() { return '视频存储对账台-' + stamp(); }
+
+  /* ── 读输入 ───────────────────────────── */
+  var SCALAR_FIELDS = ['audioKbps', 'audioTracks', 'overheadPct', 'targetMinutes', 'capacity', 'usablePct',
+    'gradeMBps', 'uploadMbps', 'uploadUtilPct', 'targetUploadMinutes', 'shootRatio', 'cameras', 'proxyMbps', 'bppRef'];
+
+  function readInputs() {
+    var cfg = state.cfg;
+    cfg.label = $('g-label').value;
+    cfg.capacityUnit = $('g-capacityUnit').value;
+    SCALAR_FIELDS.forEach(function (f) {
+      var el = $('g-' + f);
+      if (el) cfg[f] = el.value;
+    });
+    var items = $('clips').querySelectorAll('.item');
+    cfg.clips = [];
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var q = function (k) { return it.querySelector('[data-k="' + k + '"]'); };
+      cfg.clips.push({
+        name: q('name') ? q('name').value : '',
+        w: q('w') ? q('w').value : '',
+        h: q('h') ? q('h').value : '',
+        fps: q('fps') ? q('fps').value : '',
+        rateUnit: q('rateUnit') ? q('rateUnit').value : 'Mbps',
+        rate: q('rate') ? q('rate').value : '',
+        codec: q('codec') ? q('codec').value : 'H.265'
+      });
+    }
+    if (cfg.pickedIdx >= cfg.clips.length) cfg.pickedIdx = cfg.clips.length - 1;
+    if (cfg.pickedIdx < 0) cfg.pickedIdx = 0;
+    return cfg;
+  }
+
+  /* ── 渲染输入区 ───────────────────────────── */
+  /* 模板里的固定输入框是写死在 HTML 里的，这里统一补上 data-field，
+     让文档级的事件委托能认出「这是一次真正的输入」。 */
+  function tagStaticInputs() {
+    SCALAR_FIELDS.forEach(function (f) {
+      var el = $('g-' + f);
+      if (el) {
+        el.setAttribute('data-field', f);
+        el.setAttribute('autocomplete', 'off');
+      }
+    });
+    var lab = $('g-label');
+    if (lab) lab.setAttribute('data-field', 'label');
+    var unit = $('g-capacityUnit');
+    if (unit) unit.setAttribute('data-field', 'capacityUnit');
+  }
+
+  function renderInputs() {
+    var cfg = state.cfg;
+    $('g-label').value = cfg.label;
+    $('g-capacityUnit').value = cfg.capacityUnit;
+    SCALAR_FIELDS.forEach(function (f) {
+      var el = $('g-' + f);
+      if (el) el.value = cfg[f] === undefined || cfg[f] === null ? '' : String(cfg[f]);
+    });
+
+    var box = $('clips');
+    clear(box);
+    cfg.clips.forEach(function (cl, i) {
+      var it = mk('div', 'item' + (i === cfg.pickedIdx ? ' on' : ''));
+      it.setAttribute('data-idx', String(i));
+      var head = mk('div', 'itemhead');
+      head.appendChild(mk('span', 'idx', '档位 ' + (i + 1)));
+      var nm = document.createElement('input');
+      nm.type = 'text';
+      nm.value = cl.name;
+      nm.setAttribute('data-k', 'name');
+      nm.setAttribute('data-field', 'clips[' + i + '].name');
+      nm.placeholder = '档位名（只用于显示）';
+      head.appendChild(nm);
+      var pick = mk('button', 'tiny' + (i === cfg.pickedIdx ? ' on' : ''), i === cfg.pickedIdx ? '当前档位' : '选中');
+      pick.type = 'button';
+      pick.setAttribute('data-act', 'pick');
+      pick.setAttribute('data-idx', String(i));
+      head.appendChild(pick);
+      it.appendChild(head);
+
+      var grid = mk('div', 'gridp');
+      [['w', '宽（px）'], ['h', '高（px）'], ['fps', '帧率（fps）'], ['rate', '码率'], ['rateUnit', '码率单位'], ['codec', '编码']].forEach(function (spec) {
+        var k = spec[0];
+        var w2 = document.createElement('div');
+        var lab = mk('label', null, spec[1]);
+        w2.appendChild(lab);
+        var inp;
+        if (k === 'rateUnit') {
+          inp = document.createElement('select');
+          C.RATE_UNITS.forEach(function (u) { inp.appendChild(new Option(u, u, false, u === cl.rateUnit)); });
+        } else if (k === 'codec') {
+          inp = document.createElement('select');
+          C.CODECS.forEach(function (u) { inp.appendChild(new Option(u, u, false, u === cl.codec)); });
+        } else {
+          inp = document.createElement('input');
+          inp.type = 'text';
+          inp.setAttribute('inputmode', 'decimal');
+          inp.value = cl[k] === undefined || cl[k] === null ? '' : String(cl[k]);
+        }
+        inp.setAttribute('data-k', k);
+        inp.setAttribute('data-field', 'clips[' + i + '].' + k);
+        inp.setAttribute('autocomplete', 'off');
+        w2.appendChild(inp);
+        grid.appendChild(w2);
+      });
+      it.appendChild(grid);
+      box.appendChild(it);
+    });
+
+    var sc = $('scenario');
+    clear(sc);
+    var opts = [{ id: '', name: '— 选一个内置场景 —', note: '' }].concat(C.scenarios());
+    opts.forEach(function (s) { sc.appendChild(new Option(s.name, s.id, false, s.id === state.patched)); });
+  }
+
+  /* ── 渲染结果 ───────────────────────────── */
+  function clearResults() {
+    ['kpis', 'verdictDetail', 'insights', 'steps', 'revBox', 'clipBody', 'cardBody', 'sensBody', 'checks', 'legend'].forEach(function (id) {
+      var n = $(id);
+      if (n) clear(n);
+    });
+    $('verdictPill').textContent = '—';
+    $('verdictPill').className = 'pill';
+    $('checkTag').textContent = '—';
+    $('chartTag').textContent = '—';
+    $('baselineNote').textContent = '';
+    $('mediaNote').textContent = '—';
+    var wrap = $('chartWrap');
+    clear(wrap);
+    var d = document.createElement('div');
+    d.id = 'chart';
+    wrap.appendChild(d);
+    state.res = null;
+  }
+
+  function refresh() {
+    try {
+      readInputs();
+    } catch (e) {
+      showErrors([{ field: '', msg: '读取输入失败：' + e.message }]);
+      return;
+    }
+    var v = C.validate(state.cfg);
+    state.warns = v.warnings || [];
+    if (!v.ok) {
+      clearResults();
+      showErrors(v.errors);
+      markBad(v.errors);
+      return;
+    }
+    state.errs = [];
+    markBad([]);
+    var res;
+    try { res = C.analyze(state.cfg); } catch (e) {
+      showErrors([{ field: '', msg: '计算失败：' + e.message }]);
+      return;
+    }
+    state.res = res;
+    $('errBox').innerHTML = '';
+    renderVerdict(res);
+    renderChart(res);
+    renderInsights(res);
+    renderSteps(res);
+    renderRev(res);
+    renderClipTable(res);
+    renderCardTable(res);
+    renderSensTable(res);
+    renderChecks(res);
+  }
+
+  function showErrors(errors) {
+    var box = $('errBox');
+    clear(box);
+    var d = mk('div', 'errbox');
+    d.appendChild(mk('b', null, '有 ' + errors.length + ' 处填错了，先把它们改过来：'));
+    var ul = mk('ul');
+    errors.slice(0, 12).forEach(function (e) { ul.appendChild(mk('li', null, e.msg)); });
+    if (errors.length > 12) ul.appendChild(mk('li', null, '……还有 ' + (errors.length - 12) + ' 处'));
+    d.appendChild(ul);
+    box.appendChild(d);
+  }
+
+  function markBad(errors) {
+    var nodes = document.querySelectorAll('[data-field]');
+    for (var i = 0; i < nodes.length; i++) nodes[i].classList.remove('bad');
+    var fields = {};
+    errors.forEach(function (e) { if (e.field) fields[e.field] = 1; });
+    Object.keys(fields).forEach(function (f) {
+      var m = /^clips\[(\d+)\]\.(.+)$/.exec(f);
+      var list = [];
+      if (m) {
+        var idx = m[1], key = m[2];
+        if (key === 'wh') list = ['clips[' + idx + '].w', 'clips[' + idx + '].h'];
+        else list = ['clips[' + idx + '].' + key];
+      } else list = [f];
+      list.forEach(function (fld) {
+        var n = document.querySelector('[data-field="' + fld + '"]');
+        if (n) n.classList.add('bad');
+      });
+    });
+  }
+
+  function renderVerdict(res) {
+    var sel = res.sel;
+    var pill = $('verdictPill');
+    pill.className = 'pill ' + sel.verdict.id;
+    pill.textContent = sel.verdict.label;
+    var box = $('verdictDetail');
+    clear(box);
+    var rows = [
+      ['当前档位', (sel.name || '第 ' + (res.selIdx + 1) + ' 档') + '：' + sel.w + '×' + sel.h + ' @ ' + C.fmtNum(sel.fps, 0) + ' fps · '
+        + C.fmtNum(sel.rate, 2) + ' ' + sel.rateUnit + ' · ' + sel.codec],
+      ['判定依据', sel.verdict.why + '；可录 ' + C.fmtDur(sel.recordMin) + ' ÷ 目标 ' + C.fmtDur(res.targetMinutes)
+        + ' = ' + C.fmtNum(sel.ratio, 3) + ' 倍'],
+      ['写入速度', (sel.writeOk === null ? '卡速未填（0），本次只判容量' : (sel.writeOk ? '够' : '不够') + '：平均写入需求 '
+        + C.fmtMBps(sel.bps) + '，卡上标的 ' + C.fmtNum(res.cfg.gradeMBps, 1) + ' MB/s')],
+      ['介质', '标称 ' + C.fmtNum(res.cfg.capacity, 2) + ' ' + res.cfg.capacityUnit + ' → 可用 '
+        + C.fmtBytesBoth(res.media.usable) + '（可用比例 ' + C.fmtPct(res.cfg.usablePct, 0) + '）']
+    ];
+    rows.forEach(function (r) {
+      box.appendChild(mk('div', 'k', r[0]));
+      box.appendChild(mk('div', 'v', r[1]));
+    });
+
+    var kpi = function (lab, val, note) {
+      var d = mk('div', 'kpi');
+      d.appendChild(mk('div', 'lab', lab));
+      d.appendChild(mk('div', 'val', val));
+      if (note) d.appendChild(mk('div', 'note', note));
+      return d;
+    };
+    var k = $('kpis');
+    clear(k);
+    k.appendChild(kpi('每秒占用', C.fmtMBps(sel.bps), '每分钟 ' + C.fmtNum(sel.mbPerMin, 1) + ' MB'));
+    k.appendChild(kpi('目标 ' + C.fmtDur(res.targetMinutes) + ' 文件', C.fmtNum(sel.targetGB, 2) + ' GB', C.fmtGiB(sel.targetBytes) + '（系统显示）'));
+    k.appendChild(kpi('能录多久', C.fmtDur(sel.recordMin), '余量 ' + C.fmtPct((sel.ratio - 1) * 100, 1)));
+    k.appendChild(kpi('写入需求', C.fmtNum(sel.writeMBps, 2) + ' MB/s',
+      sel.writeOk === null ? '卡速未填，只判容量' : (sel.gradeNeed ? '最低 ' + sel.gradeNeed + ' 级' : '超出 V90')));
+    k.appendChild(kpi('bpp', C.fmtBpp(sel.bpp), '参考下限 ' + C.fmtBpp(res.cfg.bppRef)));
+    k.appendChild(kpi('上传耗时', sel.uploadMin === null ? '—' : C.fmtDur(sel.uploadMin), sel.uploadMin === null ? '带宽或利用率为 0' : '期望 ' + C.fmtDur(res.cfg.targetUploadMinutes)));
+    k.appendChild(kpi('项目总存储', C.fmtBytes(res.projectBytes), '成片 ' + C.fmtBytes(res.deliveryBytes) + ' 的 ' + C.fmtNum(res.projectBytes / res.deliveryBytes, 2) + ' 倍'));
+    k.appendChild(kpi('需要卡张数', String(res.cardsNeeded) + ' 张', '单张可用 ' + C.fmtBytes(res.media.usable)));
+
+    $('baselineNote').textContent = '口径：码率按恒定处理（真实素材是 VBR）；文件 = (视频 + 音频) × (1 + 封装开销) ÷ 8 × 时长；'
+      + '容量按标称 × 进制系数 × 可用比例折算。「bpp」= 码率 ÷ (宽 × 高 × 帧率)，只用于档位之间横向比。';
+
+    var note = $('mediaNote');
+    note.textContent = '这台介质：标称 ' + C.fmtNum(res.cfg.capacity, 2) + ' ' + res.cfg.capacityUnit + ' = '
+      + C.fmtBytes(res.media.total) + ' = ' + C.fmtGiB(res.media.total) + '；乘可用比例 ' + C.fmtPct(res.cfg.usablePct, 0)
+      + ' 之后真正能写 ' + C.fmtBytesBoth(res.media.usable) + '。' + (res.cfg.gradeMBps > 0
+        ? '保证持续写入 ' + C.fmtNum(res.cfg.gradeMBps, 1) + ' MB/s。' : '卡速填的是 0，本次不判写入速度。');
+
+    if (state.warns.length) {
+      var w = mk('div', 'warnbox');
+      w.appendChild(mk('b', null, '提醒：'));
+      var ul = mk('ul');
+      state.warns.forEach(function (x) { ul.appendChild(mk('li', null, x)); });
+      w.appendChild(ul);
+      w.style.margin = '8px 0 10px';
+      $('errBox').appendChild(w);
+    }
+  }
+
+  /* ── 容量曲线 ───────────────────────────── */
+  /* 粗略估算 SVG 文字宽度：中日韩字符按 1em，其余按 0.58em */
+  function estWidth(text, fs) {
+    var w = 0;
+    for (var i = 0; i < String(text).length; i++) w += String(text).charCodeAt(i) > 0x2e80 ? fs : fs * 0.58;
+    return w;
+  }
+
+  function niceTicks(max, n) {
+    if (!(max > 0)) return [0, 1];
+    var raw = max / n;
+    var mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var norm = raw / mag;
+    var step = mag * (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10);
+    var out = [];
+    for (var v = 0; v <= max + step * 0.5; v += step) out.push(Math.round(v * 1e6) / 1e6);
+    return out;
+  }
+
+  function renderChart(res) {
+    var wrap = $('chartWrap');
+    var box = $('chart');
+    var W = Math.max(300, Math.min(900, Math.round(wrap.clientWidth || 640) - 10));
+    var narrow = W < 620;
+    var H = narrow ? 340 : 400;
+    var pad = narrow ? { l: 46, r: 12, t: 16, b: 40 } : { l: 62, r: 16, t: 18, b: 42 };
+    var fs = narrow ? 11 : 12;
+
+    var maxRecord = Math.max.apply(null, res.clips.map(function (k) { return k.recordMin; }));
+    var xMax = Math.max(res.targetMinutes, Math.min(res.sel.recordMin, maxRecord)) * 1.06;
+    if (!Number.isFinite(xMax) || xMax <= 0) xMax = res.targetMinutes;
+    var gbPerMin = res.sel.bps * 60 / 1e9;
+    var yMax = Math.max(res.media.usable / 1e9, gbPerMin * xMax) * 1.06;
+    var x = function (min) { return pad.l + (min / xMax) * (W - pad.l - pad.r); };
+    var y = function (gb) { return H - pad.b - (gb / yMax) * (H - pad.t - pad.b); };
+
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('width', String(W));
+    svg.setAttribute('height', String(H));
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', '容量曲线：每个档位的占用速度与介质可用容量');
+    var append = function (tag, attrs, text) {
+      var e = document.createElementNS(svgNS, tag);
+      Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+      if (text !== undefined) e.textContent = text;
+      svg.appendChild(e);
+      return e;
+    };
+    // 裁剪区：直线超出画布时不画到坐标轴外面
+    var defs = document.createElementNS(svgNS, 'defs');
+    var cp = document.createElementNS(svgNS, 'clipPath');
+    cp.setAttribute('id', 'plotClip');
+    var cpr = document.createElementNS(svgNS, 'rect');
+    cpr.setAttribute('x', String(pad.l)); cpr.setAttribute('y', String(pad.t));
+    cpr.setAttribute('width', String(W - pad.l - pad.r)); cpr.setAttribute('height', String(H - pad.t - pad.b));
+    cp.appendChild(cpr); defs.appendChild(cp); svg.appendChild(defs);
+
+    var yUnit = yMax >= 1000 ? { d: 1000, n: 'TB' } : { d: 1, n: 'GB' };
+    var showY = C.fmtNum(res.media.usable / 1e9 / yUnit.d, 1) + ' ' + yUnit.n;
+    var yTicks = niceTicks(yMax / yUnit.d, narrow ? 4 : 5);
+    yTicks.forEach(function (v) {
+      var yy = y(v * yUnit.d);
+      if (yy < pad.t - 1 || yy > H - pad.b + 1) return;
+      append('line', { x1: pad.l, y1: yy, x2: W - pad.r, y2: yy, stroke: '#eef1f4', 'stroke-width': 1 });
+      append('text', { x: pad.l - 6, y: yy + 4, 'text-anchor': 'end', 'font-size': fs, fill: '#7b8794' },
+        C.fmtNum(v, v > 0 && v < 10 ? 1 : 0));
+    });
+    var useHours = xMax > 600;
+    var xTicks = niceTicks(xMax, narrow ? 3 : 5);
+    xTicks.forEach(function (v) {
+      var xx = x(v);
+      if (xx > W - pad.r - 8) return;
+      append('text', { x: xx, y: H - pad.b + 16, 'text-anchor': 'middle', 'font-size': fs, fill: '#7b8794' },
+        useHours ? C.fmtNum(v / 60, 1) + '时' : C.fmtNum(v, 0) + '分');
+    });
+    append('text', { x: pad.l - 6, y: pad.t + 2, 'text-anchor': 'end', 'font-size': fs, fill: '#7b8794' }, yUnit.n);
+    append('text', { x: W - pad.r, y: H - 6, 'text-anchor': 'end', 'font-size': fs, fill: '#7b8794' }, '录制时长');
+    append('line', { x1: pad.l, y1: H - pad.b, x2: W - pad.r, y2: H - pad.b, stroke: '#cbd2da', 'stroke-width': 1 });
+    append('line', { x1: pad.l, y1: pad.t, x2: pad.l, y2: H - pad.b, stroke: '#cbd2da', 'stroke-width': 1 });
+
+    // 目标时长竖线
+    if (res.targetMinutes <= xMax) {
+      append('line', {
+        x1: x(res.targetMinutes), y1: pad.t, x2: x(res.targetMinutes), y2: H - pad.b,
+        stroke: '#7b8794', 'stroke-width': 1.4, 'stroke-dasharray': '5 4'
+      });
+      var tText = '目标 ' + C.fmtDur(res.targetMinutes);
+      var anchorLeft = x(res.targetMinutes) > pad.l + (W - pad.l - pad.r) * 0.6;
+      append('text', {
+        x: x(res.targetMinutes) + (anchorLeft ? -4 : 4),
+        y: pad.t + fs + 2, 'text-anchor': anchorLeft ? 'end' : 'start', 'font-size': fs, fill: '#4a5568'
+      }, tText);
+    }
+
+    var g = document.createElementNS(svgNS, 'g');
+    g.setAttribute('clip-path', 'url(#plotClip)');
+    svg.appendChild(g);   /* 放在最上层；裁剪区保证它不会盖住坐标轴外的文字 */
+    var gadd = function (tag, attrs, text) {
+      var e = document.createElementNS(svgNS, tag);
+      Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+      if (text !== undefined) e.textContent = text;
+      g.appendChild(e);
+      return e;
+    };
+    // 各档位直线
+    res.clips.forEach(function (k, i) {
+      var slope = k.bps * 60 / 1e9;
+      var isSel = i === res.selIdx;
+      gadd('line', {
+        x1: x(0), y1: y(0), x2: x(xMax), y2: y(slope * xMax),
+        stroke: COLORS[i % COLORS.length], 'stroke-width': isSel ? 2.6 : 1.5,
+        'stroke-opacity': isSel ? 1 : 0.55
+      });
+      if (k.recordMin <= xMax) {
+        gadd('circle', {
+          cx: x(k.recordMin), cy: y(res.media.usable / 1e9), r: isSel ? 4.4 : 3,
+          fill: COLORS[i % COLORS.length], stroke: '#fff', 'stroke-width': 1.2
+        });
+      }
+    });
+    // 介质可用容量线
+    gadd('line', {
+      x1: x(0), y1: y(res.media.usable / 1e9), x2: x(xMax), y2: y(res.media.usable / 1e9),
+      stroke: '#b42318', 'stroke-width': 2, 'stroke-dasharray': '7 4'
+    });
+    /* 介质可用容量标签：加一层白底，别被曲线与虚线穿过去 */
+    var mLabel = '介质可用 ' + showY;
+    var mw = estWidth(mLabel, fs) + 12;
+    var mx = Math.max(pad.l + 2, W - pad.r - 4 - mw);
+    var my = y(res.media.usable / 1e9) - fs - 9;
+    if (my < pad.t + 2) my = y(res.media.usable / 1e9) + 4;
+    gadd('rect', { x: mx, y: my, width: mw, height: fs + 9, fill: '#ffffff', 'fill-opacity': 0.93, rx: 3 });
+    gadd('text', { x: mx + 6, y: my + fs + 1, 'font-size': fs, fill: '#b42318' }, mLabel);
+
+    $('chartWrap').replaceChild(svg, box);
+    svg.id = 'chart';
+    var lg = $('legend');
+    clear(lg);
+    var add = function (color, text, dash) {
+      var s = mk('span');
+      var i = mk('i');
+      i.style.background = color;
+      if (dash) i.style.borderTop = '2px dashed ' + color, i.style.background = 'transparent', i.style.height = '0';
+      s.appendChild(i);
+      s.appendChild(document.createTextNode(text));
+      lg.appendChild(s);
+    };
+    res.clips.forEach(function (k, i) {
+      add(COLORS[i % COLORS.length], (k.name || '第 ' + (k.idx + 1) + ' 档') + (i === res.selIdx ? '（当前）' : ''));
+    });
+    add('#b42318', '介质可用容量', true);
+    $('chartTag').textContent = 'x 轴 0–' + C.fmtNum(xMax, 0) + ' 分钟 · y 轴 0–' + C.fmtNum(yMax, 0) + ' GB';
+    state.chartNarrow = narrow;
+  }
+
+  function renderInsights(res) {
+    var box = $('insights');
+    clear(box);
+    C.insights(res).forEach(function (x) {
+      var li = mk('li');
+      li.appendChild(mk('b', null, x.title));
+      li.appendChild(mk('span', null, x.text));
+      box.appendChild(li);
+    });
+  }
+
+  function renderSteps(res) {
+    var box = $('steps');
+    clear(box);
+    var list = C.steps(res);
+    if (!list.length) {
+      box.appendChild(mk('li', null, '当前设置没有需要改的地方：容量、卡速、带宽与 bpp 都在你自己划的线以上。'));
+      return;
+    }
+    list.forEach(function (s) {
+      var li = mk('li');
+      li.appendChild(mk('b', null, s.title));
+      li.appendChild(mk('span', null, s.text));
+      if (s.patch) {
+        var b = mk('button', 'tiny primary', '一键采用');
+        b.type = 'button';
+        b.setAttribute('data-act', 'adopt');
+        b.setAttribute('data-idx', String(list.indexOf(s)));
+        b.__patch = s.patch;
+        li.appendChild(b);
+      }
+      box.appendChild(li);
+    });
+  }
+
+  function renderRev(res) {
+    var box = $('revBox');
+    clear(box);
+    var c = res.cfg;
+    $('revTag').textContent = res.rev.reqGradeV ? res.rev.reqGradeV : '超出 V90';
+    var hint = mk('p', 'footnote scrollhint', '表格比屏幕宽：左右滑动可以看到全部列（要解决的问题 / 临界值 / 回代检验）。');
+    hint.style.margin = '0 0 8px';
+    box.appendChild(hint);
+    var tbl = mk('div', 'tw');
+    var t = mk('table');
+    t.id = 'revTable';
+    var thead = mk('thead');
+    var tr = mk('tr');
+    ['要解决的问题', '临界值', '回代检验'].forEach(function (h) { tr.appendChild(mk('th', null, h)); });
+    thead.appendChild(tr);
+    t.appendChild(thead);
+    var tb = mk('tbody');
+    var add = function (a, b, d) {
+      var r = mk('tr');
+      r.appendChild(mk('td', null, a));
+      r.appendChild(mk('td', null, b));
+      r.appendChild(mk('td', null, d));
+      tb.appendChild(r);
+    };
+    add('录满 ' + C.fmtDur(res.targetMinutes) + ' 至少要多大介质',
+      C.fmtNum(res.rev.reqCapacity, 2) + ' ' + c.capacityUnit,
+      '回代可录 ' + C.fmtDur(res.rev.reqCapacityBytes / res.sel.bps / 60) + '（当前标称 ' + C.fmtNum(c.capacity, 2) + ' ' + c.capacityUnit + '）');
+    add('写入达标要多少卡速',
+      C.fmtNum(res.rev.reqGradeMBps, 2) + ' MB/s' + (res.rev.reqGradeV ? '（' + res.rev.reqGradeV + '）' : '（超出 V90）'),
+      res.sel.writeOk === null ? '卡速未填，无法比较' : (res.sel.writeOk ? '当前卡速够' : '当前卡速不够'));
+    var backUpRate = res.rev.reqUploadMbps * 1e6 / 8 * (c.uploadUtilPct / 100);
+    var backUpMin = backUpRate > 0 ? res.sel.targetBytes / backUpRate / 60 : null;
+    add('想在 ' + C.fmtDur(c.targetUploadMinutes) + ' 内传完要多大带宽',
+      C.fmtMbps(res.rev.reqUploadMbps),
+      res.sel.uploadMin === null ? '当前带宽或利用率为 0，上传不可计算' : '回代上传 ' + C.fmtDur(backUpMin));
+    add('要达到 bpp 参考下限 ' + C.fmtBpp(c.bppRef),
+      C.fmtMbps(res.rev.reqRateMbpsForBpp),
+      '回代 bpp ' + C.fmtBpp(res.rev.reqRateMbpsForBpp * 1e6 / res.sel.pxRate) + '（当前 ' + C.fmtBpp(res.sel.bpp) + '）');
+    t.appendChild(tb);
+    tbl.appendChild(t);
+    box.appendChild(tbl);
+    var note = mk('p', 'footnote');
+    note.textContent = '四条都是闭式解，并且每条都用「改回输入再算一遍」验证过（见下面的结构自检）。'
+      + '反推的容量与带宽都按你填的可用比例、利用率折算，不含任何安全系数。';
+    box.appendChild(note);
+  }
+
+  function renderClipTable(res) {
+    var tb = $('clipBody');
+    clear(tb);
+    res.clips.forEach(function (k, i) {
+      var tr = mk('tr', 'pick' + (i === res.selIdx ? ' sel' : ''));
+      tr.setAttribute('data-act', 'pick');
+      tr.setAttribute('data-idx', String(i));
+      var tdName = mk('td');
+      tdName.appendChild(document.createTextNode((k.name || '第 ' + (k.idx + 1) + ' 档') + (i === res.selIdx ? ' ●' : '')));
+      tdName.appendChild(mk('br'));
+      tdName.appendChild(mk('span', 'pill ' + k.verdict.id, k.verdict.label));
+      tr.appendChild(tdName);
+      tr.appendChild(mk('td', null, k.w + '×' + k.h));
+      tr.appendChild(mk('td', null, C.fmtNum(k.fps, 0)));
+      tr.appendChild(mk('td', null, C.fmtNum(k.rate, 2) + ' ' + k.rateUnit));
+      tr.appendChild(mk('td', null, C.fmtNum(k.bps / 1e6, 3)));
+      tr.appendChild(mk('td', null, C.fmtNum(k.targetGB, 2) + ' GB'));
+      tr.appendChild(mk('td', null, C.fmtDur(k.recordMin)));
+      tr.appendChild(mk('td', null, C.fmtNum(k.writeMBps, 2)));
+      tr.appendChild(mk('td', null, C.fmtBpp(k.bpp)));
+      tb.appendChild(tr);
+    });
+  }
+
+  function renderCardTable(res) {
+    var tb = $('cardBody');
+    clear(tb);
+    var c = res.cfg;
+    var add = function (a, b, d, e) {
+      var tr = mk('tr');
+      tr.appendChild(mk('td', null, a));
+      tr.appendChild(mk('td', null, b));
+      tr.appendChild(mk('td', null, d));
+      tr.appendChild(mk('td', null, e));
+      tb.appendChild(tr);
+    };
+    add('成片（1 份）', C.fmtDur(res.targetMinutes), C.fmtBytes(res.deliveryBytes), '当前档位，' + (res.sel.name || '第 ' + (res.selIdx + 1) + ' 档'));
+    add('素材', C.fmtDur(res.sourceMin), C.fmtBytes(res.sourceBytes),
+      C.fmtNum(c.shootRatio, 0) + ' 倍素材 × ' + C.fmtNum(c.cameras, 0) + ' 机位');
+    add('代理文件', res.proxyBytes > 0 ? C.fmtDur(res.sourceMin) : '—', C.fmtBytes(res.proxyBytes),
+      c.proxyMbps > 0 ? C.fmtMbps(c.proxyMbps) + ' 按素材时长算' : '未开启');
+    var sum = mk('tr', 'sum');
+    sum.appendChild(mk('td', null, '合计'));
+    sum.appendChild(mk('td', null, '—'));
+    sum.appendChild(mk('td', null, C.fmtBytesBoth(res.projectBytes, 1)));
+    sum.appendChild(mk('td', null, '≈ ' + res.cardsNeeded + ' 张当前介质的全部可用空间'));
+    tb.appendChild(sum);
+    add('上传成片', res.sel.uploadMin === null ? '—' : C.fmtDur(res.sel.uploadMin), C.fmtBytes(res.deliveryBytes),
+      res.sel.uploadMin === null ? '带宽或利用率为 0' : C.fmtMbps(c.uploadMbps) + ' × ' + C.fmtPct(c.uploadUtilPct, 0) + ' 利用率');
+    add('上传全部素材', res.upBytesPerSec > 0 ? C.fmtDur(res.projectBytes / res.upBytesPerSec / 60) : '—',
+      C.fmtBytes(res.projectBytes), res.upBytesPerSec > 0 ? '同一带宽下的乐观估计' : '带宽或利用率为 0');
+    add('备份一份', res.upBytesPerSec > 0 ? C.fmtDur(res.projectBytes / res.upBytesPerSec / 60) : '—',
+      C.fmtBytes(res.projectBytes), '本地再存一份同样的量（不含校验与重传）');
+  }
+
+  function renderSensTable(res) {
+    var tb = $('sensBody');
+    clear(tb);
+    C.sensitivity(res.cfg).forEach(function (r) {
+      var tr = mk('tr');
+      tr.appendChild(mk('td', null, r.name));
+      tr.appendChild(mk('td', null, C.fmtNum(r.writeMBps, 3)));
+      tr.appendChild(mk('td', null, C.fmtNum(r.targetGB, 2) + ' GB'));
+      tr.appendChild(mk('td', null, C.fmtDur(r.recordMin)));
+      tr.appendChild(mk('td', null, r.uploadMin === null ? '—' : C.fmtDur(r.uploadMin)));
+      tr.appendChild(mk('td', null, r.cards === null ? '—' : String(r.cards)));
+      var td = mk('td');
+      td.appendChild(mk('span', 'pill ' + r.verdict.id, r.verdict.label));
+      tr.appendChild(td);
+      tb.appendChild(tr);
+    });
+  }
+
+  function renderChecks(res) {
+    var box = $('checks');
+    clear(box);
+    $('checkTag').textContent = res.checkSummary.pass + ' / ' + res.checkSummary.total;
+    res.checks.forEach(function (x) {
+      var li = mk('li', x.pass ? '' : 'no');
+      li.appendChild(mk('b', null, x.pass ? '[✓] ' : '[×] '));
+      li.appendChild(document.createTextNode(x.name + (x.detail ? '（' + x.detail + '）' : '')));
+      box.appendChild(li);
+    });
+  }
+
+  /* ── 结果卡 PNG（1080×1350，自底向上排布，避免叠字） ───── */
+  function tokens(text) {
+    var out = [], re = /[0-9][0-9.,%\/]*|[A-Za-z][A-Za-z0-9.+\/]*|\s+|[\s\S]/g, m;
+    while ((m = re.exec(text)) !== null) out.push(m[0]);
+    return out;
+  }
+  function wrapText(ctx, text, maxWidth) {
+    var lines = [], cur = '';
+    tokens(String(text)).forEach(function (tk) {
+      if (/^\s+$/.test(tk)) tk = ' ';
+      var t = cur + tk;
+      if (ctx.measureText(t).width > maxWidth && cur) { lines.push(cur); cur = tk === ' ' ? '' : tk; }
+      else cur = t;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function firstSentence(text, max) {
+    var s = String(text);
+    var m = /^[\s\S]{0,400}?。/.exec(s);
+    var out = m ? m[0] : s;
+    if (out.length > max) out = out.slice(0, max - 1) + '…';
+    return out;
+  }
+
+  function drawResultCard(res, done) {
+    var W = 1080, H = 1350;
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var ctx = cv.getContext('2d');
+    var FONT = '"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif';
+    var font = function (px, bold) { ctx.font = (bold ? '700 ' : '400 ') + px + 'px ' + FONT; };
+    var M = 64, CW = W - M * 2;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    var ellipsis = function (text, maxW) {
+      var t = String(text);
+      while (ctx.measureText(t).width > maxW && t.length > 4) t = t.slice(0, -2) + '…';
+      return t;
+    };
+    var rrect = function (x, y, w, h, fill, stroke) {
+      ctx.fillStyle = fill;
+      ctx.fillRect(x, y, w, h);
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h); }
+    };
+
+    /* ── 先把每块的高度量出来，再自上而下排；放不下的块不画。
+          流水式 y 累加在内容变长时一定会叠字，所以这里先量后排。 ── */
+    font(52, true);
+    var titleLines = wrapText(ctx, res.cfg.label || '未命名拍摄', CW).slice(0, 2);
+    font(25);
+    var subLines = wrapText(ctx, '当前档位：' + (res.sel.name || '第 ' + (res.selIdx + 1) + ' 档') + ' · ' + res.sel.w + '×' + res.sel.h
+      + ' @ ' + C.fmtNum(res.sel.fps, 0) + ' fps · ' + C.fmtNum(res.sel.rate, 2) + ' ' + res.sel.rateUnit
+      + ' · 介质 ' + C.fmtNum(res.cfg.capacity, 0) + ' ' + res.cfg.capacityUnit, CW).slice(0, 2);
+    var verdictWhy = '可录 ' + C.fmtDur(res.sel.recordMin) + ' ÷ 目标 ' + C.fmtDur(res.targetMinutes) + ' = '
+      + C.fmtNum(res.sel.ratio, 3) + ' 倍 · ' + res.sel.verdict.why;
+    font(25);
+    var whyLines = wrapText(ctx, verdictWhy, CW - 48).slice(0, 2);
+    var ins = C.insights(res).slice(0, 3).map(function (x) {
+      font(26, true);
+      var h = wrapText(ctx, x.title, CW - 40);
+      font(24);
+      var b = wrapText(ctx, firstSentence(x.text, 120), CW - 40);
+      return { head: h, body: b, height: h.length * 31 + b.length * 29 + 26 };
+    });
+
+    var y = 84;
+    font(28); ctx.fillStyle = '#4a5568';
+    ctx.fillText('视频存储对账台', M, y);
+    y += 46;
+    font(52, true); ctx.fillStyle = '#161b22';
+    titleLines.forEach(function (l, i) { ctx.fillText(l, M, y + i * 60); });
+    y += titleLines.length * 60 + 4;
+    font(25); ctx.fillStyle = '#4a5568';
+    subLines.forEach(function (l, i) { ctx.fillText(l, M, y + i * 32); });
+    y += subLines.length * 32 + 18;
+    var topLimit = y;
+    var bottomLimit = H - 74;
+
+    /* 1) 判定条 */
+    var bandH = 62 + whyLines.length * 32;
+    var color = res.sel.verdict.id === 'ok' ? ['#e8f6ef', '#0f7b52']
+      : res.sel.verdict.id === 'tight' ? ['#fff5e5', '#9a5b00'] : ['#fdeceb', '#b42318'];
+    rrect(M, y, CW, bandH, color[0], null);
+    font(46, true); ctx.fillStyle = color[1];
+    ctx.fillText(res.sel.verdict.label, M + 24, y + 52);
+    font(25); ctx.fillStyle = color[1];
+    whyLines.forEach(function (l, i) { ctx.fillText(l, M + 24, y + 88 + i * 32); });
+    y += bandH + 20;
+
+    /* 2) 六个 KPI（两列三行） */
+    var kpiList = [
+      ['每秒占用', C.fmtMBps(res.sel.bps), '每分钟 ' + C.fmtNum(res.sel.mbPerMin, 1) + ' MB'],
+      ['目标 ' + C.fmtDur(res.targetMinutes) + ' 文件', C.fmtNum(res.sel.targetGB, 2) + ' GB', C.fmtGiB(res.sel.targetBytes) + '（系统显示）'],
+      ['能录多久', C.fmtDur(res.sel.recordMin), '余量 ' + C.fmtPct((res.sel.ratio - 1) * 100, 1)],
+      ['写入需求', C.fmtNum(res.sel.writeMBps, 2) + ' MB/s', res.sel.writeOk === null ? '卡速未填，只判容量' : (res.sel.gradeNeed ? '最低 ' + res.sel.gradeNeed + ' 级' : '超出 V90')],
+      ['bpp', C.fmtBpp(res.sel.bpp), '参考下限 ' + C.fmtBpp(res.cfg.bppRef)],
+      ['需要卡张数', res.cardsNeeded + ' 张', '项目共 ' + C.fmtBytes(res.projectBytes)]
+    ];
+    var boxH = 96, gap = 14, bw = CW / 2 - gap / 2;
+    kpiList.forEach(function (k, i) {
+      var cx = M + (i % 2) * (bw + gap);
+      var cy = y + Math.floor(i / 2) * (boxH + gap);
+      rrect(cx, cy, bw, boxH, '#fafbfc', '#e3e6eb');
+      font(23); ctx.fillStyle = '#7b8794';
+      ctx.fillText(ellipsis(k[0], bw - 36), cx + 18, cy + 30);
+      font(36, true); ctx.fillStyle = '#161b22';
+      ctx.fillText(ellipsis(k[1], bw - 36), cx + 18, cy + 68);
+      font(21); ctx.fillStyle = '#7b8794';
+      ctx.fillText(ellipsis(k[2], bw - 36), cx + 18, cy + 90);
+    });
+    y += 3 * boxH + 2 * gap + 20;
+
+    /* 3) 档位表（最多 4 行） */
+    var rows = res.clips.slice(0, 4);
+    var rowH = 38, tableH = (rows.length + 1) * rowH + 14;
+    if (y + tableH <= bottomLimit) {
+      rrect(M, y, CW, tableH, '#fafbfc', '#e3e6eb');
+      var cols = [M + 16, M + 244, M + 386, M + 512, M + 632];
+      var widths = [208, 126, 112, 108, 196];
+      var rightEdge = M + CW - 16;
+      font(22); ctx.fillStyle = '#7b8794';
+      ['档位', '分辨率', '码率', '每秒 MB', '可录'].forEach(function (h, k) {
+        ctx.fillText(h, cols[k], y + 28);
+      });
+      ctx.textAlign = 'right';
+      ctx.fillText('判定', rightEdge, y + 28);
+      ctx.textAlign = 'left';
+      rows.forEach(function (k, r) {
+        var yy = y + 28 + (r + 1) * rowH;
+        font(24, r === res.selIdx);
+        ctx.fillStyle = r === res.selIdx ? '#0f5fa6' : '#161b22';
+        ctx.fillText(ellipsis(k.name || '第 ' + (k.idx + 1) + ' 档', widths[0]), cols[0], yy);
+        ctx.fillText(ellipsis(k.w + '×' + k.h, widths[1]), cols[1], yy);
+        ctx.fillText(ellipsis(C.fmtNum(k.rate, 0) + ' ' + k.rateUnit, widths[2]), cols[2], yy);
+        ctx.fillText(ellipsis(C.fmtNum(k.bps / 1e6, 2), widths[3]), cols[3], yy);
+        ctx.fillText(ellipsis(C.fmtDur(k.recordMin), widths[4]), cols[4], yy);
+        ctx.textAlign = 'right';
+        ctx.fillText(k.verdict.label, rightEdge, yy);
+        ctx.textAlign = 'left';
+      });
+      y += tableH + 20;
+    }
+
+    /* 4) 要点：能放几条放几条（放不下就不画，绝不压到页脚上） */
+    ins.forEach(function (item) {
+      if (y + item.height > bottomLimit) return;
+      rrect(M, y, CW, item.height, '#f7fbff', '#d3e3f5');
+      font(26, true); ctx.fillStyle = '#161b22';
+      item.head.forEach(function (l, i) { ctx.fillText(l, M + 20, y + 32 + i * 31); });
+      font(24); ctx.fillStyle = '#4a5568';
+      item.body.forEach(function (l, i) { ctx.fillText(l, M + 20, y + 32 + item.head.length * 31 + i * 29); });
+      y += item.height + 14;
+    });
+
+    /* 页脚（固定在最底部） */
+    ctx.strokeStyle = '#e3e6eb'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(M, H - 62); ctx.lineTo(W - M, H - 62); ctx.stroke();
+    font(21); ctx.fillStyle = '#7b8794';
+    ctx.fillText('生成 ' + new Date().toLocaleString('zh-CN') + '（时长 ' + C.fmtDur(res.targetMinutes) + ' 等数字都可在页面上复算）', M, H - 32);
+
+    if (cv.toBlob) cv.toBlob(function (b) { done(b); }, 'image/png');
+    else done(null);
+  }
+
+  /* ── 交互 ───────────────────────────── */
+  function applyPatch(p) {
+    if (!p) return;
+    if (p.scope === 'clip') {
+      var i = p.idx;
+      if (!state.cfg.clips[i]) return;
+      Object.keys(p.values).forEach(function (k) { state.cfg.clips[i][k] = p.values[k]; });
+    } else {
+      Object.keys(p.values).forEach(function (k) { state.cfg[k] = p.values[k]; });
+    }
+    renderInputs();
+    refresh();
+  }
+
+  function onEdit(e) {
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    if (t.getAttribute('data-field') === null) return;
+    refresh();
+  }
+
+  function bind() {
+    /* 输入区会被整体重建（换场景 / 读取 / 加档位 / 一键采用），所以用事件委托：
+       直接 querySelectorAll 绑一遍的话，重建之后新输入框就没有监听了。 */
+    document.addEventListener('input', onEdit);
+    document.addEventListener('change', onEdit);
+
+    $('clips').addEventListener('click', function (e) {
+      var t = e.target;
+      while (t && t !== this && !t.getAttribute('data-act')) t = t.parentNode;
+      if (!t || t === this) return;
+      var idx = Number(t.getAttribute('data-idx'));
+      if (Number.isFinite(idx)) { state.cfg.pickedIdx = idx; renderInputs(); refresh(); }
+    });
+
+    $('btnAddClip').addEventListener('click', function () {
+      if (state.cfg.clips.length >= C.CLIP_MAX) { toast('最多 ' + C.CLIP_MAX + ' 个档位'); return; }
+      readInputs();
+      var last = state.cfg.clips[state.cfg.clips.length - 1] || { w: 1920, h: 1080, fps: 30, rateUnit: 'Mbps', rate: 12, codec: 'H.264' };
+      state.cfg.clips.push({
+        name: '新档位 ' + (state.cfg.clips.length + 1), w: last.w, h: last.h, fps: last.fps,
+        rateUnit: last.rateUnit, rate: last.rate, codec: last.codec
+      });
+      renderInputs();
+      refresh();
+    });
+    $('btnDelClip').addEventListener('click', function () {
+      readInputs();
+      if (state.cfg.clips.length <= C.CLIP_MIN) { toast('至少保留 ' + C.CLIP_MIN + ' 个档位'); return; }
+      state.cfg.clips.pop();
+      if (state.cfg.pickedIdx >= state.cfg.clips.length) state.cfg.pickedIdx = state.cfg.clips.length - 1;
+      renderInputs();
+      refresh();
+    });
+
+    $('scenario').addEventListener('change', function () {
+      var id = this.value;
+      if (!id) return;
+      state.cfg = C.scenarioCfg(id);
+      state.patched = id;
+      renderInputs();
+      refresh();
+      toast('已套用内置场景（虚构示例）');
+    });
+    $('btnReset').addEventListener('click', function () {
+      state.cfg = C.defaultsClone();
+      state.patched = null;
+      renderInputs();
+      refresh();
+      toast('已恢复默认');
+    });
+    $('btnSave').addEventListener('click', function () {
+      try {
+        localStorage.setItem(LS_KEY, C.backupJson(state.cfg));
+        toast('已保存到本机（localStorage）');
+      } catch (e) { toast('保存失败：' + e.message); }
+    });
+    $('btnLoad').addEventListener('click', function () {
+      var raw = null;
+      try { raw = localStorage.getItem(LS_KEY); } catch (e) { raw = null; }
+      if (!raw) { toast('本机没有保存过数据'); return; }
+      var back = C.readBackup(raw);
+      if (!back.ok) { toast('读取失败：' + back.error); return; }
+      state.cfg = back.cfg;
+      state.patched = null;
+      renderInputs();
+      refresh();
+      toast('已从本机恢复');
+    });
+    $('importFile').addEventListener('change', function () {
+      var f = this.files && this.files[0];
+      if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function () {
+        var back = C.readBackup(String(fr.result));
+        if (!back.ok) { toast('导入失败：' + back.error); return; }
+        state.cfg = back.cfg;
+        state.patched = null;
+        renderInputs();
+        refresh();
+        toast('已导入备份');
+      };
+      fr.onerror = function () { toast('读文件失败'); };
+      fr.readAsText(f);
+      this.value = '';
+    });
+
+    $('steps').addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || t.getAttribute('data-act') !== 'adopt') return;
+      applyPatch(t.__patch);
+      toast('已采用这条建议，下面的数字都重算了');
+    });
+
+    $('clipBody').addEventListener('click', function (e) {
+      var tr = e.target && e.target.closest ? e.target.closest('tr') : null;
+      if (!tr) return;
+      var idx = Number(tr.getAttribute('data-idx'));
+      if (Number.isFinite(idx)) { state.cfg.pickedIdx = idx; renderInputs(); refresh(); }
+    });
+
+    $('btnCsv').addEventListener('click', function () {
+      window.__exports++;
+      download(baseName() + '.csv', '\ufeff' + C.toCsv(state.cfg), 'text/csv;charset=utf-8');
+    });
+    $('btnMd').addEventListener('click', function () {
+      window.__exports++;
+      download(baseName() + '.md', C.toMd(state.cfg), 'text/markdown;charset=utf-8');
+    });
+    $('btnJson').addEventListener('click', function () {
+      window.__exports++;
+      download(baseName() + '.json', C.backupJson(state.cfg), 'application/json;charset=utf-8');
+    });
+    $('btnPng').addEventListener('click', function () {
+      if (!state.res) { toast('先把填错的地方改过来，再导出结果卡'); return; }
+      window.__exports++;
+      drawResultCard(state.res, function (blob) {
+        if (!blob) { toast('这个浏览器不支持导出图片'); return; }
+        downloadBlob(baseName() + '-结果卡.png', blob);
+      });
+    });
+    $('btnPrint').addEventListener('click', function () { window.print(); });
+
+    window.addEventListener('resize', function () {
+      if (!state.res) return;
+      var w = Math.max(300, Math.min(900, Math.round($('chartWrap').clientWidth || 640) - 10));
+      if ((w < 620) !== state.chartNarrow) renderChart(state.res);
+    });
+  }
+
+  function boot() {
+    var raw = null;
+    try { raw = localStorage.getItem(LS_KEY); } catch (e) { raw = null; }
+    if (raw) {
+      var back = C.readBackup(raw);
+      if (back.ok) state.cfg = back.cfg;
+      else state.cfg = C.defaultsClone();
+    }
+    tagStaticInputs();
+    renderInputs();
+    bind();               /* 关键：必须调用，否则所有监听与按钮都挂不上 */
+    refresh();
+    if (raw) toast('已恢复上次保存的数据');
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body>
+</html>

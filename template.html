@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>视频存储对账台 · 能录多久、文件多大、要买多大的卡、传上去要多久</title>
+<meta name="description" content="录视频之前把这笔账算清楚：码率（Mbps 与 MB/s 差 8 倍）、文件大小、介质能录多久、写入速度够不够、上传要多久、素材要几张卡。全部由你填数字，页面不联网。">
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --ink:#161b22; --ink2:#4a5568; --ink3:#7b8794;
+    --line:#e3e6eb; --line2:#cbd2da; --brand:#0f5fa6; --brand2:#eaf2fa;
+    --good:#0f7b52; --goodbg:#e8f6ef; --warn:#9a5b00; --warnbg:#fff5e5; --bad:#b42318; --badbg:#fdeceb;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+  .app{max-width:1340px;margin:0 auto;padding:22px 18px 60px;display:grid;grid-template-columns:436px minmax(0,1fr);gap:18px;align-items:start}
+  .app > *{min-width:0}
+  header.top{grid-column:1/-1;padding:4px 2px 0}
+  h1{margin:0 0 6px;font-size:26px;letter-spacing:.2px}
+  .lede{margin:0;color:var(--ink2);max-width:960px}
+  .badges{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+  .badge{font-size:12px;padding:3px 9px;border-radius:999px;background:#fff;border:1px solid var(--line2);color:var(--ink2)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,32,64,.04)}
+  .card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card h3{margin:16px 0 8px;font-size:14px;color:var(--ink2)}
+  .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--brand2);color:var(--brand);border:1px solid #d3e3f5}
+  .tag.gray{background:#f1f3f6;color:var(--ink2);border-color:var(--line2)}
+  .field{margin-bottom:11px}
+  .field label{display:block;font-size:13px;color:var(--ink2);margin-bottom:4px}
+  .field label .sub{color:var(--ink3);font-size:12px}
+  input[type=text],select{width:100%;padding:8px 10px;border:1px solid var(--line2);border-radius:9px;font-size:14px;background:#fff;color:var(--ink);font-variant-numeric:tabular-nums}
+  input[type=text]:focus,select:focus{outline:2px solid #bcd8f0;border-color:var(--brand)}
+  input.bad,select.bad{border-color:var(--bad);background:var(--badbg)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  button{font:inherit;font-size:13px;padding:8px 12px;border-radius:9px;border:1px solid var(--line2);background:#fff;color:var(--ink);cursor:pointer}
+  button:hover{background:#f7f9fb}
+  button.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+  button.primary:hover{background:#0d4f8a}
+  button.tiny{font-size:12px;padding:4px 8px}
+  button.on{border-color:var(--brand);background:var(--brand2);color:var(--brand);font-weight:600}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .btns > *{min-width:0}
+  .footnote{font-size:12px;color:var(--ink3);margin-top:8px;line-height:1.55}
+  .footnote b{color:var(--ink2)}
+  table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th{color:var(--ink2);font-weight:600;background:#fafbfc;font-size:12px}
+  th:first-child,td:first-child{text-align:left;white-space:normal;word-break:break-word}
+  tbody tr.pick{cursor:pointer}
+  tbody tr.pick:hover{background:#f7f9fb}
+  tbody tr.sel{background:var(--brand2)}
+  tr.sum td{font-weight:700;background:#fafbfc;white-space:normal;line-height:1.35}
+  .tw{overflow-x:auto;max-width:100%}
+  #clipTable{min-width:724px}
+  #clipTable th:nth-child(1),#clipTable td:nth-child(1){width:172px}
+  #clipTable th:nth-child(2),#clipTable td:nth-child(2){width:92px}
+  #clipTable .pill{font-size:11px;padding:2px 7px;margin-top:3px;display:inline-block}
+  #sensTable{min-width:700px}
+  #cardTable{min-width:560px}
+  #revTable{min-width:620px}
+  #revTable th:nth-child(1),#revTable td:nth-child(1){width:210px}
+  .pill{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid}
+  .pill.ok{background:var(--goodbg);color:var(--good);border-color:#bfe3d2}
+  .pill.tight{background:var(--warnbg);color:var(--warn);border-color:#f0d9b5}
+  .pill.bad{background:var(--badbg);color:var(--bad);border-color:#f3c6c3}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin:2px 0 6px}
+  .kpi{background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+  .kpi .lab{font-size:11.5px;color:var(--ink3)}
+  .kpi .val{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;word-break:break-word;line-height:1.3}
+  .kpi .note{font-size:11.5px;color:var(--ink3);margin-top:2px}
+  .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:13.5px}
+  .kv .k{color:var(--ink3)}
+  .kv .v{min-width:0;word-break:break-word}
+  .ins{margin:0;padding:0;list-style:none}
+  .ins li{padding:9px 0;border-bottom:1px dashed var(--line)}
+  .ins li:last-child{border-bottom:0}
+  .ins b{display:block;font-size:14px;margin-bottom:2px}
+  .ins span{color:var(--ink2);font-size:13px}
+  .steps{margin:0;padding:0;list-style:none}
+  .steps li{padding:9px 0;border-bottom:1px dashed var(--line)}
+  .steps li:last-child{border-bottom:0}
+  .steps b{display:block;font-size:14px;margin-bottom:3px}
+  .steps span{color:var(--ink2);font-size:13px;display:block}
+  .steps button{margin-top:6px}
+  .warnbox{background:var(--warnbg);border:1px solid #f0d9b5;border-radius:10px;padding:10px 12px;font-size:13px;color:#6b3f00;margin-top:8px}
+  .errbox{background:var(--badbg);border:1px solid #f3c6c3;border-radius:10px;padding:10px 12px;font-size:13px;color:#7a1a12;margin-bottom:10px}
+  .errbox ul{margin:6px 0 0;padding-left:18px}
+  .okbox{background:var(--goodbg);border:1px solid #bfe3d2;border-radius:10px;padding:10px 12px;font-size:13px;color:#0b5c3e;margin-top:8px}
+  #chartWrap{border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px 4px 2px}
+  #chart{display:block;width:100%;height:auto}
+  #chart svg{display:block;width:100%;max-width:100%;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--ink2);margin:6px 2px 0}
+  .legend i{display:inline-block;width:13px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+  .checks{font-size:12.5px;margin:0;padding:0;list-style:none}
+  .checks li{margin:3px 0;color:var(--ink2);word-break:break-word}
+  .checks li b{color:var(--ink)}
+  .checks .no{color:var(--bad)}
+  .item{border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-bottom:9px;background:#fcfdfe}
+  .item.on{border-color:#bcd8f0;background:#f7fbff}
+  .itemhead{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px;align-items:center;margin-bottom:7px}
+  .itemhead .idx{font-size:12px;color:var(--ink3);white-space:nowrap}
+  .itemhead input{padding:5px 7px;font-size:13px}
+  .gridp{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:7px}
+  .gridp label{display:block;font-size:11.5px;color:var(--ink3);line-height:1.4}
+  .gridp input,.gridp select{width:100%;padding:6px 8px;font-size:13px}
+  .partsum{font-size:12.5px;color:var(--ink2);margin:2px 0 8px}
+  .partsum b{font-variant-numeric:tabular-nums}
+  .partsum .bad{color:var(--bad);font-weight:700}
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#161b22;color:#fff;font-size:13px;padding:9px 16px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:99;max-width:86vw;text-align:center}
+  .scrollhint{display:none}
+  @media (max-width:900px){ .scrollhint{display:block;color:var(--brand)} }
+  details.note{font-size:12.5px;color:var(--ink2);margin-top:8px}
+  details.note summary{cursor:pointer;color:var(--brand)}
+  details.note p{margin:6px 0 0}
+  code{background:#f1f3f6;border-radius:4px;padding:1px 4px;font-size:12.5px}
+  @media (max-width:900px){
+    .app{grid-template-columns:minmax(0,1fr);padding:16px 12px 48px}
+    h1{font-size:22px}
+    .row3{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:400px){
+    .row2,.row3{grid-template-columns:minmax(0,1fr)}
+  }
+  @media print{
+    body{background:#fff}
+    .btns,button,#toast,select{display:none!important}
+    .card{break-inside:avoid;box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>视频存储对账台</h1>
+    <p class="lede">按下录制键之前，先把这本账算清楚：这个码率<b>每分钟占多少、录满目标时长文件多大</b>，手上这张介质<b>到底能录多久</b>，写入速度够不够（V30 到底是多快），录完<b>传上去要多久</b>，以及成片之外<b>素材一共要几张卡</b>。全部由你填数字，页面不联网、不查机型规格。</p>
+    <div class="badges">
+      <span class="badge">码率按恒定处理（不建模 VBR 波动）</span>
+      <span class="badge">GB 用 10^9、GiB 用 2^30，两种口径都显示</span>
+      <span class="badge">18 项结构自检每次重算都跑</span>
+      <span class="badge">bpp 只用于档位之间横向比，不是画质评分</span>
+      <span class="badge">默认数据与 9 个内置场景都是虚构示例</span>
+    </div>
+  </header>
+
+  <section class="left">
+    <div class="card">
+      <h2>① 录制档位 <span class="tag gray" id="clipTag">—</span></h2>
+      <div class="field"><label>这次拍的是什么<span class="sub">只用于显示</span></label><input type="text" id="g-label"></div>
+      <p class="footnote">每个档位填：<b>分辨率 × 帧率</b>、<b>码率</b>与它的单位、编码标签。点档位右上角的「选中」把它设为当前档位，右下方的结论、曲线与反推都跟着它走。码率单位 <code>Mbps</code> 与 <code>MB/s</code> 差 8 倍，填错这一个选项，后面每个数都会错。</p>
+      <div id="clips"></div>
+      <div class="btns">
+        <button id="btnAddClip" class="tiny">加一个档位</button>
+        <button id="btnDelClip" class="tiny">删最后一个档位</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>② 音频与封装</h2>
+      <div class="row3">
+        <div class="field"><label>单音轨码率（kbps）</label><input type="text" id="g-audioKbps"></div>
+        <div class="field"><label>音轨数</label><input type="text" id="g-audioTracks"></div>
+        <div class="field"><label>封装开销（%）</label><input type="text" id="g-overheadPct"></div>
+      </div>
+      <p class="footnote">音频比特率 = 单音轨 kbps × 音轨数；封装开销是音视频之外多出来的那一点点（容器头、索引、交错填充），填 0 就是严格按码率算。</p>
+    </div>
+
+    <div class="card">
+      <h2>③ 介质 <span class="tag gray" id="mediaTag">—</span></h2>
+      <div class="row2">
+        <div class="field"><label>标称容量</label><input type="text" id="g-capacity"></div>
+        <div class="field"><label>容量口径</label><select id="g-capacityUnit"><option value="GB">GB（10^9，厂商口径）</option><option value="GiB">GiB（2^30，系统口径）</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>可用比例（%）</label><input type="text" id="g-usablePct"></div>
+        <div class="field"><label>保证持续写入（MB/s）<span class="sub">0 = 未填</span></label><input type="text" id="g-gradeMBps"></div>
+      </div>
+      <p class="footnote" id="mediaNote">—</p>
+    </div>
+
+    <div class="card">
+      <h2>④ 目标与上传</h2>
+      <div class="row3">
+        <div class="field"><label>目标录制时长（分钟）</label><input type="text" id="g-targetMinutes"></div>
+        <div class="field"><label>上行带宽（Mbps）</label><input type="text" id="g-uploadMbps"></div>
+        <div class="field"><label>带宽利用率（%）</label><input type="text" id="g-uploadUtilPct"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>期望上传时间（分钟）</label><input type="text" id="g-targetUploadMinutes"></div>
+        <div class="field"><label>素材倍率（拍 N 分钟剪 1 分钟）</label><input type="text" id="g-shootRatio"></div>
+        <div class="field"><label>机位台数</label><input type="text" id="g-cameras"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>代理文件码率（Mbps）<span class="sub">0 = 不做代理</span></label><input type="text" id="g-proxyMbps"></div>
+        <div class="field"><label>bpp 参考下限</label><input type="text" id="g-bppRef"></div>
+      </div>
+      <p class="footnote">「素材倍率 × 机位」决定要存多少素材：成片 1 小时、拍 3 倍素材、2 台机位，就是 6 小时素材。bpp 参考下限只是你自己划的一条线（默认 0.06 是设计选择，不是标准），低于它页面会提示码率至少要多少。</p>
+    </div>
+
+    <div class="card">
+      <h2>⑤ 场景与文件</h2>
+      <div class="field"><label>内置场景（全部为虚构示例）</label><select id="scenario"></select></div>
+      <div class="btns">
+        <button id="btnReset">恢复默认</button>
+        <button id="btnSave">保存到本机</button>
+        <button id="btnLoad">读取本机</button>
+      </div>
+      <div class="btns" style="margin-top:8px">
+        <label class="tiny" style="display:inline-block;border:1px solid var(--line2);border-radius:9px;padding:8px 12px;cursor:pointer;font-size:13px">
+          导入备份 JSON<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+        </label>
+      </div>
+      <div class="btns" style="margin-top:8px">
+        <button id="btnCsv">导出 CSV</button>
+        <button id="btnMd">导出 Markdown</button>
+        <button id="btnPng">导出结果卡 PNG</button>
+        <button id="btnJson">导出备份 JSON</button>
+        <button id="btnPrint">打印</button>
+      </div>
+      <p class="footnote" id="storeNote">「保存到本机」写的是浏览器 localStorage，刷新后自动恢复；不上传任何数据。</p>
+    </div>
+  </section>
+
+  <section class="right">
+    <div id="errBox"></div>
+    <div class="card" id="resultCard">
+      <h2>结论 <span id="verdictPill">—</span></h2>
+      <div id="verdictDetail" class="kv"></div>
+      <div class="kpis" id="kpis"></div>
+      <p class="footnote" id="baselineNote"></p>
+    </div>
+
+    <div class="card">
+      <h2>容量曲线：占用什么时候追上介质 <span class="tag gray" id="chartTag">—</span></h2>
+      <div id="chartWrap"><div id="chart"></div></div>
+      <div class="legend" id="legend"></div>
+      <p class="footnote">横轴是录制时长，纵轴是十进制 GB。每条直线是一个档位的占用速度（斜率 = 每分钟多少 GB），那条红色的水平虚线是介质<b>可用容量</b>：直线与它的交点，就是这一档能录多久。竖虚线是目标时长。</p>
+    </div>
+
+    <div class="card">
+      <h2>要记住的几条</h2>
+      <ul class="ins" id="insights"></ul>
+    </div>
+
+    <div class="card">
+      <h2>下一步（能直接改到输入上）</h2>
+      <ul class="steps" id="steps"></ul>
+    </div>
+
+    <div class="card">
+      <h2>反推：容量 / 带宽 / 码率的临界值 <span class="tag" id="revTag">—</span></h2>
+      <div id="revBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>档位账</h2>
+      <p class="footnote scrollhint">表格比屏幕宽：左右滑动可以看到全部列（分辨率 / 帧率 / 码率 / 每秒 MB / 目标文件 / 可录时长 / 写入需求 / bpp / 判定）。</p>
+      <div class="tw"><table id="clipTable"><thead><tr>
+        <th>档位（含判定）</th><th>分辨率</th><th>帧率</th><th>码率</th><th>每秒 MB</th><th>目标文件</th><th>可录时长</th><th>写入需求</th><th>bpp</th>
+      </tr></thead><tbody id="clipBody"></tbody></table></div>
+      <p class="footnote">「目标文件」= 选中时长下这一档要占的空间；「可录时长」= 介质可用容量 ÷ 这一档的每秒占用。点表格里的行也能切换当前档位；判定标签放在第一列，是为了在桌面上不用横向滚动也能看到它。</p>
+    </div>
+
+    <div class="card">
+      <h2>素材、卡与上传账</h2>
+      <div class="tw"><table id="cardTable"><thead><tr>
+        <th>项目</th><th>时长</th><th>大小</th><th>说明</th>
+      </tr></thead><tbody id="cardBody"></tbody></table></div>
+      <p class="footnote">素材 = 目标时长 × 素材倍率 × 机位；代理文件按素材时长算；成片只算一份。卡张数 = 项目总量 ÷ 单张可用容量，向上取整。</p>
+    </div>
+
+    <div class="card">
+      <h2>敏感性（每一行完整重算，不是插值）</h2>
+      <p class="footnote scrollhint">表格比屏幕宽：左右滑动可以看到全部列。</p>
+      <div class="tw"><table id="sensTable"><thead><tr>
+        <th>改法</th><th>每秒 MB</th><th>目标文件</th><th>可录时长</th><th>上传</th><th>卡张数</th><th>判定</th>
+      </tr></thead><tbody id="sensBody"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <h2>结构自检 <span class="tag gray" id="checkTag">—</span></h2>
+      <ul class="checks" id="checks"></ul>
+      <p class="footnote">这 18 项在每次重算时都会跑一遍：恒等式（每秒占用 = （视频 + 音频）× 开销 ÷ 8、目标文件 = 每秒占用 × 秒数、可录时长 = 可用容量 ÷ 每秒占用）、单位不变性（Mbps 与 MB/s 的等价写法必须给出逐位相同的数）、GB 与 GiB 的换算、卡张数的最优性、三条反推的回代、单调性、写入不达标时强制判「不够」，以及全程没有 NaN / 无穷大。它们只证明这本账内部自洽，你填的码率与容量是不是真的，仍要你自己核查。</p>
+    </div>
+
+    <div class="card">
+      <h2>这本账算不了什么</h2>
+      <ul class="checks">
+        <li>码率按<b>恒定</b>处理：真实素材是 VBR，复杂场景的瞬时码率会高很多（现场掉帧常常出在这里），本页不算峰值、不算掉速曲线、不算温度降频。</li>
+        <li>写入判定用的是<b>平均码率 ÷ 8</b> 对介质保证的最低持续写入速度：所以「刚好达标」不是安全结论，「卡速够」也不等于这张卡在你机身上一定不掉帧。</li>
+        <li>容量一律按标称与可用比例折算，<b>不建模文件系统簇大小、相机分段与索引文件、坏块与预留空间</b>。</li>
+        <li>上传时长不考虑<b>协议开销、重传、服务端限速、断点续传与免费额度</b>；网盘/平台的实际速度常低于带宽。</li>
+        <li><b>bpp 只是「码率 ÷ 像素率」这个比值</b>，用来横向比档位；它不是画质评分，也不代表编码器的效率高低。</li>
+        <li>不测真实码率与画质、不判断器材好坏、不给购买建议、不查真实卡价与机型规格、不联网。</li>
+      </ul>
+    </div>
+  </section>
+</div>
+<div id="toast"></div>
+<script>/*CORE*/</script>
+<script>/*UI*/</script>
+</body>
+</html>
